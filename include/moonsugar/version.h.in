@@ -1,0 +1,13 @@
+/**
+ * @file
+ *
+ * Version information.
+ */
+#ifndef MS_VERSION_H
+#define MS_VERSION_H
+
+#define MS_VERSION_MAJOR @CMAKE_PROJECT_VERSION_MAJOR@
+#define MS_VERSION_MINOR @CMAKE_PROJECT_VERSION_MINOR@
+#define MS_VERSION_PATCH @CMAKE_PROJECT_VERSION_PATCH@
+
+#endif // MS_VERSION_H

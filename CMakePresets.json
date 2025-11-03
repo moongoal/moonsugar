@@ -1,0 +1,88 @@
+{
+  "version": 10,
+  "configurePresets": [
+    {
+      "name": "Debug",
+      "generator": "Ninja",
+      "binaryDir": "build/Debug",
+      "installDir": "dist/Debug",
+      "environment": {
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CC": "clang"
+      }
+    },
+    {
+      "name": "Release",
+      "generator": "Ninja",
+      "binaryDir": "build/Release",
+      "installDir": "dist/Release",
+      "environment": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CC": "clang"
+      }
+    }
+  ],
+
+  "buildPresets": [
+    {
+      "name": "Debug",
+      "configurePreset": "Debug"
+    },
+    {
+      "name": "Release",
+      "configurePreset": "Release"
+    }
+  ],
+
+  "testPresets": [
+    {
+      "name": "Debug",
+      "configurePreset": "Debug",
+      "output": {
+        "outputOnFailure": true
+      }
+    },
+    {
+      "name": "Release",
+      "configurePreset": "Release",
+      "output": {
+        "outputOnFailure": true
+      }
+    }
+  ],
+
+  "packagePresets": [
+    {
+      "name": "Debug",
+      "configurePreset": "Debug",
+      "generators": ["TGZ"]
+    },
+    {
+      "name": "Release",
+      "configurePreset": "Release",
+      "generators": ["TGZ"]
+    }
+  ],
+
+  "workflowPresets": [
+    {
+      "name": "DebugPackage",
+      "steps": [
+        { "type": "configure", "name": "Debug" },
+        { "type": "build", "name": "Debug" },
+        { "type": "test", "name": "Debug" },
+        { "type": "package", "name": "Debug" }
+      ]
+    },
+    {
+      "name": "ReleasePackage",
+      "steps": [
+        { "type": "configure", "name": "Release" },
+        { "type": "build", "name": "Release" },
+        { "type": "test", "name": "Release" },
+        { "type": "package", "name": "Release" }
+      ]
+    }
+  ]
+}
