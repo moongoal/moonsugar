@@ -38,7 +38,9 @@ target_sources(
   FILE_SET HEADERS
   BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}/include
   FILES
+    include/moonsugar/api.h
     include/moonsugar/coroutine.h
+    include/moonsugar/path.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/moonsugar/version.h
 )
 
