@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 4.1)
 
 project(
   moonsugar
-  VERSION 0.0.1
+  VERSION 0.1.0
 )
 
 include(CPack)

@@ -196,6 +196,58 @@ MD_CASE(join__second_empty) {
   md_assert(strcmp(buff, expected_output) == 0);
 }
 
+MD_CASE(get_extension) {
+  char input[] = "/my/file/name.ext";
+  char expected_output[] = "ext";
+  char buff[256];
+
+  ms_result const result = ms_path_get_extension(input, buff, 256);
+
+  md_assert(result == MS_RESULT_SUCCESS);
+  md_assert(strcmp(buff, expected_output) == 0);
+}
+
+MD_CASE(get_extension__multiple) {
+  char input[] = "/my/file/name.ext.2";
+  char expected_output[] = "ext.2";
+  char buff[256];
+
+  ms_result const result = ms_path_get_extension(input, buff, 256);
+
+  md_assert(result == MS_RESULT_SUCCESS);
+  md_assert(strcmp(buff, expected_output) == 0);
+}
+
+MD_CASE(get_extension__no_separator) {
+  char input[] = "name.ext.2";
+  char expected_output[] = "ext.2";
+  char buff[256];
+
+  ms_result const result = ms_path_get_extension(input, buff, 256);
+
+  md_assert(result == MS_RESULT_SUCCESS);
+  md_assert(strcmp(buff, expected_output) == 0);
+}
+
+MD_CASE(get_extension__empty) {
+  char input[] = "";
+  char buff[256];
+
+  ms_result const result = ms_path_get_extension(input, buff, 256);
+
+  md_assert(result == MS_RESULT_SUCCESS);
+  md_assert(buff[0] == '\0');
+}
+
+MD_CASE(get_extension__too_long) {
+  char input[] = "a.b";
+  char buff[1];
+
+  ms_result const result = ms_path_get_extension(input, buff, 1);
+
+  md_assert(result == MS_RESULT_LENGTH);
+}
+
 int main(int argc, char **argv) {
   md_suite suite = md_suite_create();
 
@@ -217,6 +269,11 @@ int main(int argc, char **argv) {
   md_add(&suite, join__second_too_long);
   md_add(&suite, join__first_empty);
   md_add(&suite, join__second_empty);
+  md_add(&suite, get_extension);
+  md_add(&suite, get_extension__multiple);
+  md_add(&suite, get_extension__no_separator);
+  md_add(&suite, get_extension__empty);
+  md_add(&suite, get_extension__too_long);
 
   return md_run(argc, argv, &suite);
 }

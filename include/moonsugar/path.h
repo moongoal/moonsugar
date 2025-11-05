@@ -13,6 +13,7 @@
 #include <moonsugar/api.h>
 
 #define MS_PATH_SEP '/'
+#define MS_EXT_SEP '.'
 
 #define MS_PATH_WIN32_SEP '\\'
 #define MS_PATH_WIN32_DRIVE_SEP ':'
@@ -47,6 +48,18 @@ ms_result MSAPI ms_path_get_filename(char const * const s, char * const buff, un
  *  MS_RESULT_LENGTH if the buffer is too small.
  */
 ms_result MSAPI ms_path_get_parent(char const * const s, char * const buff, unsigned const buff_len);
+
+/**
+ * Get the extension portion of a path.
+ *
+ * @param s The input path.
+ * @param buff The output path.
+ * @param buff_len The output buffer length, in characters.
+ *
+ * @return MS_RESULT_SUCCESS on success,
+ *  MS_RESULT_LENGTH if the buffer is too small.
+ */
+ms_result MSAPI ms_path_get_extension(char const * const s, char * const buff, unsigned const buff_len);
 
 /**
  * Normalize slashes in the path, turning all backslashes into forward slashes.

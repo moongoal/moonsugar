@@ -1,6 +1,36 @@
 #include <string.h>
 #include <moonsugar/path.h>
 
+ms_result ms_path_get_extension(char const * const s, char * const buff, unsigned const buff_len) {
+  long const length = strlen(s);
+  long i;
+
+  // Find last path separator
+  for(i = length - 1; i >= 0; --i) {
+    if(s[i] == MS_PATH_SEP) {
+      break;
+    }
+  }
+
+  // Find first extension separator in file name
+  for(++i; i < length; ++i) {
+    if(s[i] == MS_EXT_SEP) {
+      i++; // Ignore separator
+      break;
+    }
+  }
+
+  unsigned const ext_len = length - i;
+  
+  if(ext_len < buff_len) {
+    strcpy(buff, &s[i]);
+
+    return MS_RESULT_SUCCESS;
+  }
+
+  return MS_RESULT_LENGTH;
+}
+
 ms_result ms_path_get_filename(char const * const s, char * const buff, unsigned buff_len) {
   char * const nulptr = &buff[buff_len - 1];
   unsigned filename_offset = 0;
