@@ -26,6 +26,12 @@
 #endif
 
 /**
+ * Maximum path length the library is guaranteed
+ * to handle.
+ */
+#define MS_PATH_MAX_LEN (512u)
+
+/**
  * Get the filename portion of a path.
  *
  * @param s The input path.
