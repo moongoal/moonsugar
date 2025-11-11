@@ -8,6 +8,9 @@
 
 #define MSAPI
 
+#define MSMALLOC __attribute__((malloc))
+#define MSUSERET __attribute__((warn_unused_result))
+
 typedef enum {
   /**
    * The operation was successful.
@@ -19,7 +22,17 @@ typedef enum {
    * to contain the output. Any output buffers contain invalid data and
    * must not be used.
    */
-  MS_RESULT_LENGTH
+  MS_RESULT_LENGTH,
+
+  /**
+   * An unknown error has occurred.
+   */
+  MS_RESULT_UNKNOWN,
+
+  /**
+   * One or more arguments are invalid.
+   */
+  MS_RESULT_INVALID_ARGUMENT
 } ms_result;
 
 

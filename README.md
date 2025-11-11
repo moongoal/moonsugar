@@ -8,6 +8,8 @@ Moonsugar is a library of core functionality written in C99.
 |------|-----------|-------------|
 |Coroutine|Stackless coroutine framework|🧪 Unstable|
 |Path|Path manipulation|🧪 Unstable|
+|Compress|Data compression|🧪 Unstable|
+|Memory|Memory allocation|🧪 Unstable|
 
 ## Development
 
@@ -16,6 +18,10 @@ Requirements:
 * CMake
 * Ninja
 * LLVM
+
+Dependencies:
+
+* Zlib
 
 ### Building
 
