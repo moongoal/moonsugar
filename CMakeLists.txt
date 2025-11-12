@@ -11,6 +11,7 @@ include(CPack)
 include(scripts/target.cmake)
 include(scripts/test.cmake)
 include(scripts/install.cmake)
+include(scripts/depcopy.cmake)
 
 find_package(moondance CONFIG)
 find_package(ZLIB REQUIRED)
@@ -74,3 +75,4 @@ else()
 endif()
 
 ms_install()
+ms_copy_dependencies()
