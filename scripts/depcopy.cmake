@@ -1,7 +1,11 @@
 include_guard()
 
 function(ms_copy_dependencies)
-  if(${ZLIB_USE_STATIC_LIBS})
+  if(NOT ENABLE_COMPRESS)
+    return()
+  endif()
+
+  if(ZLIB_USE_STATIC_LIBS)
     return()
   endif()
 
@@ -12,7 +16,6 @@ function(ms_copy_dependencies)
   find_file(
     MS_ZLIB_PATH
     NAMES zlib.dll zlib1.dll zlib.so zlib1.so
-    HINTS ${CMAKE_LIBRARY_PATH} ${ZLIB_ROOT}
     PATH_SUFFIXES bin lib
     REQUIRED
   )

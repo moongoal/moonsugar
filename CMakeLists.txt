@@ -5,7 +5,7 @@ project(
   VERSION 0.2.0
 )
 
-option(ENABLE_COMPRESS "Enable the compression module" OFF)
+option(ENABLE_COMPRESS "Enable the compression module" ON)
 
 include(CPack)
 include(scripts/target.cmake)
