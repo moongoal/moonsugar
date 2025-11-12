@@ -34,7 +34,7 @@ target_include_directories(
 if(ENABLE_COMPRESS)
   target_link_libraries(
     moonsugar
-    PUBLIC
+    PRIVATE 
     ZLIB::ZLIB
   )
 endif()
