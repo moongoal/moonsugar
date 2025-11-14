@@ -10,6 +10,7 @@ MD_CASE(decode) {
 
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(strcmp(data.scheme, "my-id") == 0);
+  md_assert(data.authority == NULL);
   md_assert(strcmp(data.path, "abcd") == 0);
   md_assert(strcmp(data.query, "this is a query") == 0);
   md_assert(strcmp(data.fragment, "fragment") == 0);
@@ -44,6 +45,7 @@ MD_CASE(decode__no_query) {
 
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(strcmp(data.scheme, "my-id") == 0);
+  md_assert(data.authority == NULL);
   md_assert(strcmp(data.path, "abcd") == 0);
   md_assert(data.query == NULL);
   md_assert(strcmp(data.fragment, "fragment") == 0);
@@ -58,6 +60,7 @@ MD_CASE(decode__no_fragment) {
 
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(strcmp(data.scheme, "my-id") == 0);
+  md_assert(data.authority == NULL);
   md_assert(strcmp(data.path, "abcd") == 0);
   md_assert(strcmp(data.query, "this is a query") == 0);
   md_assert(data.fragment == NULL);
@@ -72,7 +75,38 @@ MD_CASE(decode__no_path) {
 
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(strcmp(data.scheme, "my-id") == 0);
-  md_assert(strcmp(data.path, "") == 0);
+  md_assert(data.authority == NULL);
+  md_assert(data.path == NULL);
+  md_assert(strcmp(data.query, "this is a query") == 0);
+  md_assert(strcmp(data.fragment, "fragment") == 0);
+}
+
+MD_CASE(decode__authority) {
+  char uri[] = "my-id://localhost/this/is/path?this is a query#fragment";
+  char out[sizeof(uri)];
+  ms_uri data;
+
+  ms_result const result = ms_uri_decode(uri, out, &data);
+
+  md_assert(result == MS_RESULT_SUCCESS);
+  md_assert(strcmp(data.scheme, "my-id") == 0);
+  md_assert(strcmp(data.authority, "localhost") == 0);
+  md_assert(strcmp(data.path, "this/is/path") == 0);
+  md_assert(strcmp(data.query, "this is a query") == 0);
+  md_assert(strcmp(data.fragment, "fragment") == 0);
+}
+
+MD_CASE(decode__authority_no_path) {
+  char uri[] = "my-id://localhost?this is a query#fragment";
+  char out[sizeof(uri)];
+  ms_uri data;
+
+  ms_result const result = ms_uri_decode(uri, out, &data);
+
+  md_assert(result == MS_RESULT_SUCCESS);
+  md_assert(strcmp(data.scheme, "my-id") == 0);
+  md_assert(strcmp(data.authority, "localhost") == 0);
+  md_assert(data.path == NULL);
   md_assert(strcmp(data.query, "this is a query") == 0);
   md_assert(strcmp(data.fragment, "fragment") == 0);
 }
@@ -86,6 +120,8 @@ int main(int argc, char **argv) {
   md_add(&suite, decode__no_query);
   md_add(&suite, decode__no_fragment);
   md_add(&suite, decode__no_path);
+  md_add(&suite, decode__authority);
+  md_add(&suite, decode__authority_no_path);
 
   return md_run(argc, argv, &suite);
 }

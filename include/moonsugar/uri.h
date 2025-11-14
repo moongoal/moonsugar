@@ -25,8 +25,14 @@ typedef struct {
   char * scheme;
 
   /**
+   * The authority of a URI.
+   * This field is NULL when not present.
+   */
+  char * authority;
+
+  /**
    * The path part of a URI.
-   * This field is always present and can be empty.
+   * This field is NULL when not present.
    */
   char * path;
 
@@ -64,6 +70,26 @@ ms_result MSAPI ms_uri_decode(
   char const * const uri,
   char * const out_buff,
   ms_uri * const out_data
+);
+
+/**
+ * Encode a URI string.
+ *
+ * @param description The URI description.
+ * @param out_buff The output buffer string.
+ * @param out_buff_len
+ *  If `out_buff` is NULL, this is a pointer to the memory
+ *  that will receive the minimum required length for `out_buff`.
+ *  If `out_buff` is not NULL, this is a pointer to the
+ *  length of `out_buff`.
+ *
+ * @retrun
+ *  MS_RESULT_SUCCESS on success.
+ */
+ms_result MSAPI ms_uri_encode(
+  ms_uri const * const description,
+  char * const out_buff,
+  size_t * const inout_buff_len
 );
 
 #endif // MS_URI_H
