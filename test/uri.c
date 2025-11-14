@@ -165,6 +165,24 @@ MD_CASE(decode__authority_password) {
   md_assert(strcmp(data.fragment, "fragment") == 0);
 }
 
+MD_CASE(decode__pct_decode) {
+  char uri[] = "my-id://my-user:secret@localhost:122/this%2fis%2Fpath?this%20is%20a%20query#fragment";
+  char out[sizeof(uri)];
+  ms_uri data;
+
+  ms_result const result = ms_uri_decode(uri, out, &data);
+
+  md_assert(result == MS_RESULT_SUCCESS);
+  md_assert(strcmp(data.scheme, "my-id") == 0);
+  md_assert(strcmp(data.user, "my-user") == 0);
+  md_assert(strcmp(data.password, "secret") == 0);
+  md_assert(strcmp(data.host, "localhost") == 0);
+  md_assert(data.port == 122);
+  md_assert(strcmp(data.path, "this/is/path") == 0);
+  md_assert(strcmp(data.query, "this is a query") == 0);
+  md_assert(strcmp(data.fragment, "fragment") == 0);
+}
+
 int main(int argc, char **argv) {
   md_suite suite = md_suite_create();
 
@@ -178,6 +196,7 @@ int main(int argc, char **argv) {
   md_add(&suite, decode__authority_no_path);
   md_add(&suite, decode__authority_port_user);
   md_add(&suite, decode__authority_password);
+  md_add(&suite, decode__pct_decode);
 
   return md_run(argc, argv, &suite);
 }

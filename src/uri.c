@@ -20,11 +20,38 @@ static char * find(char * s, char const c) {
   return NULL;
 }
 
+static int h2i(char const c) {
+  if(c <= '9') {
+    return c - '0';
+  }
+
+  if(c <= 'Z') {
+    return c - 'A' + 10;
+  }
+
+  return c - 'a' + 10;
+}
+
+static void pct_decode(char const * s, char * out) {
+  for(; *s != '\0'; ++s, ++out) {
+    if(*s != '%') {
+      *out = *s;
+    } else {
+      char const c = h2i(*(s + 1)) * 16 + h2i(*(s + 2));
+      *out = c;
+      s += 2;
+    }
+  }
+
+  *out = '\0';
+}
+
 ms_result ms_uri_decode(
   char const * const uri,
   char * const out_buff,
   ms_uri * const out_data
 ) {
+  char buff[MS_URI_MAX_LEN];
   strcpy(out_buff, uri);
 
   char * const scheme_delim = find(out_buff, SCHEME_SEP);
@@ -111,7 +138,7 @@ ms_result ms_uri_decode(
 
   char * const query_delim = find(next, QUERY_SEP);
 
-  if(query_delim) {
+  if(query_delim != NULL) {
     *query_delim = '\0';
     out_data->query = query_delim + 1;
   } else {
@@ -125,56 +152,27 @@ ms_result ms_uri_decode(
     FRAG_SEP
   );
 
-  if(frag_delim) {
+  if(frag_delim != NULL) {
     *frag_delim = '\0';
     out_data->fragment = frag_delim + 1;
   } else {
     out_data->fragment = NULL;
   }
 
+#define DECODE(field) \
+  if(out_data->field != NULL) { \
+    strcpy(buff, out_data->field); \
+    pct_decode(buff, out_data->field); \
+  }
+
+  DECODE(user);
+  DECODE(password);
+  DECODE(host);
+  DECODE(path);
+  DECODE(query);
+  DECODE(fragment);
+#undef DECODE
+
   return MS_RESULT_SUCCESS;
 }
 
-// static size_t estrlen(char const * s) {
-//   size_t size;
-// 
-//   for(size = 0; *s != '\0'; ++s) {
-//     
-//   }
-// 
-//   return size;
-// }
-// 
-// ms_result ms_uri_encode(
-//   ms_uri const * const description,
-//   char * const out_buff,
-//   size_t * const inout_buff_len
-// ) {
-//   if(out_buff == NULL) {
-//     size_t const required_part = (
-//       strlen(description->scheme)
-//       + 1
-//       + strlen(description->path)
-//     );
-// 
-//     size_t const query_part = (
-//       description->query != NULL
-//       ? 1 + sizeof(description->query)
-//       : 0
-//     );
-// 
-//     size_t const fragment_part = (
-//       description->fragment != NULL
-//       ? 1 + sizeof(description->fragment)
-//       : 0
-//     );
-// 
-//     *inout_buff_len = (
-//       required_part
-//       + query_part
-//       + fragment_part
-//     );
-// 
-//     return MS_RESULT_SUCCESS;
-//   }
-// }
