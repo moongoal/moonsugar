@@ -11,8 +11,9 @@ MD_CASE(decode) {
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(strcmp(data.scheme, "my-id") == 0);
   md_assert(data.user == NULL);
+  md_assert(data.password == NULL);
   md_assert(data.host == NULL);
-  md_assert(data.port == NULL);
+  md_assert(data.port == -1);
   md_assert(strcmp(data.path, "abcd") == 0);
   md_assert(strcmp(data.query, "this is a query") == 0);
   md_assert(strcmp(data.fragment, "fragment") == 0);
@@ -48,8 +49,9 @@ MD_CASE(decode__no_query) {
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(strcmp(data.scheme, "my-id") == 0);
   md_assert(data.user == NULL);
+  md_assert(data.password == NULL);
   md_assert(data.host == NULL);
-  md_assert(data.port == NULL);
+  md_assert(data.port == -1);
   md_assert(strcmp(data.path, "abcd") == 0);
   md_assert(data.query == NULL);
   md_assert(strcmp(data.fragment, "fragment") == 0);
@@ -65,8 +67,9 @@ MD_CASE(decode__no_fragment) {
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(strcmp(data.scheme, "my-id") == 0);
   md_assert(data.user == NULL);
+  md_assert(data.password == NULL);
   md_assert(data.host == NULL);
-  md_assert(data.port == NULL);
+  md_assert(data.port == -1);
   md_assert(strcmp(data.path, "abcd") == 0);
   md_assert(strcmp(data.query, "this is a query") == 0);
   md_assert(data.fragment == NULL);
@@ -82,8 +85,9 @@ MD_CASE(decode__no_path) {
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(strcmp(data.scheme, "my-id") == 0);
   md_assert(data.user == NULL);
+  md_assert(data.password == NULL);
   md_assert(data.host == NULL);
-  md_assert(data.port == NULL);
+  md_assert(data.port == -1);
   md_assert(data.path == NULL);
   md_assert(strcmp(data.query, "this is a query") == 0);
   md_assert(strcmp(data.fragment, "fragment") == 0);
@@ -99,8 +103,9 @@ MD_CASE(decode__authority) {
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(strcmp(data.scheme, "my-id") == 0);
   md_assert(data.user == NULL);
+  md_assert(data.password == NULL);
   md_assert(strcmp(data.host, "localhost") == 0);
-  md_assert(data.port == NULL);
+  md_assert(data.port == -1);
   md_assert(strcmp(data.path, "this/is/path") == 0);
   md_assert(strcmp(data.query, "this is a query") == 0);
   md_assert(strcmp(data.fragment, "fragment") == 0);
@@ -116,8 +121,9 @@ MD_CASE(decode__authority_no_path) {
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(strcmp(data.scheme, "my-id") == 0);
   md_assert(data.user == NULL);
+  md_assert(data.password == NULL);
   md_assert(strcmp(data.host, "localhost") == 0);
-  md_assert(data.port == NULL);
+  md_assert(data.port == -1);
   md_assert(data.path == NULL);
   md_assert(strcmp(data.query, "this is a query") == 0);
   md_assert(strcmp(data.fragment, "fragment") == 0);
@@ -133,8 +139,27 @@ MD_CASE(decode__authority_port_user) {
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(strcmp(data.scheme, "my-id") == 0);
   md_assert(strcmp(data.user, "my-user") == 0);
+  md_assert(data.password == NULL);
   md_assert(strcmp(data.host, "localhost") == 0);
-  md_assert(strcmp(data.port, "122") == 0);
+  md_assert(data.port == 122);
+  md_assert(strcmp(data.path, "this/is/path") == 0);
+  md_assert(strcmp(data.query, "this is a query") == 0);
+  md_assert(strcmp(data.fragment, "fragment") == 0);
+}
+
+MD_CASE(decode__authority_password) {
+  char uri[] = "my-id://my-user:secret@localhost:122/this/is/path?this is a query#fragment";
+  char out[sizeof(uri)];
+  ms_uri data;
+
+  ms_result const result = ms_uri_decode(uri, out, &data);
+
+  md_assert(result == MS_RESULT_SUCCESS);
+  md_assert(strcmp(data.scheme, "my-id") == 0);
+  md_assert(strcmp(data.user, "my-user") == 0);
+  md_assert(strcmp(data.password, "secret") == 0);
+  md_assert(strcmp(data.host, "localhost") == 0);
+  md_assert(data.port == 122);
   md_assert(strcmp(data.path, "this/is/path") == 0);
   md_assert(strcmp(data.query, "this is a query") == 0);
   md_assert(strcmp(data.fragment, "fragment") == 0);
@@ -152,6 +177,7 @@ int main(int argc, char **argv) {
   md_add(&suite, decode__authority);
   md_add(&suite, decode__authority_no_path);
   md_add(&suite, decode__authority_port_user);
+  md_add(&suite, decode__authority_password);
 
   return md_run(argc, argv, &suite);
 }

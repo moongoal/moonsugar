@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 #include <moonsugar/uri.h>
 
@@ -7,6 +8,7 @@
 #define PATH_SEP '/'
 #define USER_SEP '@'
 #define PORT_SEP ':'
+#define PASS_SEP ':'
 
 static char * find(char * s, char const c) {
   for(; *s != '\0'; ++s) {
@@ -43,15 +45,33 @@ ms_result ms_uri_decode(
   if(hier[0] == '/' && hier[1] == '/') {
     char * const authority = &hier[2];
     char * const host_delim = find(authority, USER_SEP);
+    char * userinfo;
 
     if(host_delim != NULL) {
       *host_delim = '\0';
 
-      out_data->user = authority;
+      userinfo = authority;
       out_data->host = host_delim + 1;
     } else {
-      out_data->user = NULL;
+      userinfo = NULL;
       out_data->host = authority;
+    }
+
+    if(userinfo != NULL) {
+      char * const pass_delim = find(userinfo, PASS_SEP);
+
+      out_data->user = userinfo;
+
+      if(pass_delim != NULL) {
+        *pass_delim = '\0';
+
+        out_data->password = pass_delim + 1;
+      } else {
+        out_data->password = NULL;
+      }
+    } else {
+      out_data->user = NULL;
+      out_data->password = NULL;
     }
 
     next = out_data->host;
@@ -59,9 +79,11 @@ ms_result ms_uri_decode(
 
     if(port_delim != NULL) {
       *port_delim = '\0';
-      next = out_data->port = port_delim + 1;
+
+      char * const port = next = port_delim + 1;
+      out_data->port = atoi(port);
     } else {
-      out_data->port = NULL;
+      out_data->port = -1;
     }
 
     char * const path_delim = find(next, PATH_SEP);
@@ -75,8 +97,9 @@ ms_result ms_uri_decode(
     }
   } else {
     out_data->user = NULL;
+    out_data->password = NULL;
     out_data->host = NULL;
-    out_data->port = NULL;
+    out_data->port = -1;
 
     if(hier[0] != QUERY_SEP && hier[0] != FRAG_SEP) {
       next = out_data->path = hier;

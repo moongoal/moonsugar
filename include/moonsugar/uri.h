@@ -31,6 +31,12 @@ typedef struct {
   char * user;
 
   /**
+   * The password of a URI.
+   * This field is NULL when not present.
+   */
+  char * password;
+
+  /**
    * The host of a URI.
    * This field is NULL when not present.
    */
@@ -38,9 +44,9 @@ typedef struct {
 
   /**
    * The port of a URI.
-   * This field is NULL when not present.
+   * This field is -1 when not present.
    */
-  char * port;
+  int port;
 
   /**
    * The path part of a URI.
