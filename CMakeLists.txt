@@ -21,6 +21,7 @@ add_library(
   src/coroutine.c
   src/path.c
   src/memory/interface.c
+  src/uri.c
   $<$<BOOL:${ENABLE_COMPRESS}>:src/compress.c>
 )
 
@@ -56,6 +57,7 @@ target_sources(
     include/moonsugar/coroutine.h
     include/moonsugar/path.h
     include/moonsugar/memory.h
+    include/moonsugar/uri.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/moonsugar/version.h
     $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/compress.h>
 )
@@ -68,6 +70,7 @@ else()
   enable_testing()
   ms_add_test(test-coroutine test/coroutine.c)
   ms_add_test(test-path test/path.c)
+  ms_add_test(test-uri test/uri.c)
 
   if(ENABLE_COMPRESS)
     ms_add_test(test-compress test/compress.c)
