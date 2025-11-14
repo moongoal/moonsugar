@@ -5,6 +5,8 @@
 #define QUERY_SEP '?'
 #define FRAG_SEP '#'
 #define PATH_SEP '/'
+#define USER_SEP '@'
+#define PORT_SEP ':'
 
 static char * find(char * s, char const c) {
   for(; *s != '\0'; ++s) {
@@ -39,18 +41,42 @@ ms_result ms_uri_decode(
 
   // Contains authority
   if(hier[0] == '/' && hier[1] == '/') {
-    out_data->authority = &hier[2];
-    char * const path_delim = find(out_data->authority, PATH_SEP);
+    char * const authority = &hier[2];
+    char * const host_delim = find(authority, USER_SEP);
+
+    if(host_delim != NULL) {
+      *host_delim = '\0';
+
+      out_data->user = authority;
+      out_data->host = host_delim + 1;
+    } else {
+      out_data->user = NULL;
+      out_data->host = authority;
+    }
+
+    next = out_data->host;
+    char * const port_delim = find(next, PORT_SEP);
+
+    if(port_delim != NULL) {
+      *port_delim = '\0';
+      next = out_data->port = port_delim + 1;
+    } else {
+      out_data->port = NULL;
+    }
+
+    char * const path_delim = find(next, PATH_SEP);
 
     if(path_delim != NULL) {
       *path_delim = '\0';
       next = out_data->path = path_delim + 1;
     } else {
       out_data->path = NULL;
-      next = out_data->authority;
+      next = authority;
     }
   } else {
-    out_data->authority = NULL;
+    out_data->user = NULL;
+    out_data->host = NULL;
+    out_data->port = NULL;
 
     if(hier[0] != QUERY_SEP && hier[0] != FRAG_SEP) {
       next = out_data->path = hier;

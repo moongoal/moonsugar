@@ -25,10 +25,22 @@ typedef struct {
   char * scheme;
 
   /**
-   * The authority of a URI.
+   * The user of a URI.
    * This field is NULL when not present.
    */
-  char * authority;
+  char * user;
+
+  /**
+   * The host of a URI.
+   * This field is NULL when not present.
+   */
+  char * host;
+
+  /**
+   * The port of a URI.
+   * This field is NULL when not present.
+   */
+  char * port;
 
   /**
    * The path part of a URI.
