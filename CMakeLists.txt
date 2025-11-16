@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 4.1)
 
 project(
   moonsugar
-  VERSION 0.3.0
+  VERSION 0.3.1
 )
 
 option(ENABLE_COMPRESS "Enable the compression module" ON)
