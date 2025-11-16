@@ -6,6 +6,8 @@
 #ifndef MS_API_H
 #define MS_API_H
 
+#include <stddef.h>
+
 #define MSAPI
 
 #define MSMALLOC __attribute__((malloc))
