@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 4.1)
 
 project(
   moonsugar
-  VERSION 0.3.1
+  VERSION 0.4.0
 )
 
 option(ENABLE_COMPRESS "Enable the compression module" ON)
@@ -22,6 +22,7 @@ add_library(
   src/path.c
   src/memory/interface.c
   src/uri.c
+  src/config.c
   $<$<BOOL:${ENABLE_COMPRESS}>:src/compress.c>
 )
 
@@ -58,6 +59,7 @@ target_sources(
     include/moonsugar/path.h
     include/moonsugar/memory.h
     include/moonsugar/uri.h
+    include/moonsugar/config.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/moonsugar/version.h
     $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/compress.h>
 )
@@ -71,6 +73,7 @@ else()
   ms_add_test(test-coroutine test/coroutine.c)
   ms_add_test(test-path test/path.c)
   ms_add_test(test-uri test/uri.c)
+  ms_add_test(test-config test/config.c)
 
   if(ENABLE_COMPRESS)
     ms_add_test(test-compress test/compress.c)
