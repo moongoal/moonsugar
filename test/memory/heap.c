@@ -20,9 +20,9 @@ MD_CASE(ctor) {
   md_assert(heap.base != NULL);
   md_assert(heap.committed_size == PAGE_SIZE);
   md_assert(heap.size == HEAP_SIZE);
-  md_assert(heap.first != NULL);
+  md_assert(heap.free_list.first != NULL);
 
-  ms_chunk * const chunk = heap.first;
+  ms_free_list_node * const chunk = heap.free_list.first;
 
   md_assert(chunk->prev == NULL);
   md_assert(chunk->next == NULL);
@@ -131,14 +131,14 @@ MD_CASE(inverse_free) {
   ms_heap_free(&heap, ptr1);
   ms_heap_free(&heap, ptr2);
 
-  md_assert(heap.first != NULL);
-  md_assert(heap.first->prev == NULL);
-  md_assert(heap.first->next == NULL);
-  md_assert(heap.first->size == HEAP_SIZE);
+  md_assert(heap.free_list.first != NULL);
+  md_assert(heap.free_list.first->prev == NULL);
+  md_assert(heap.free_list.first->next == NULL);
+  md_assert(heap.free_list.first->size == HEAP_SIZE);
 }
 
 MD_CASE(static_constraints) {
-  md_assert((MS_HEAP_DEALLOC_THR) >= sizeof(ms_chunk));
+  md_assert((MS_HEAP_DEALLOC_THR) >= sizeof(ms_free_list_node));
 }
 
 int main(int argc, char** argv) {

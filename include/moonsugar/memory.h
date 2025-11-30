@@ -135,22 +135,79 @@ typedef struct {
 /**
  * A chunk of contiguous memory allocated from the heap.
  */
-typedef struct ms_chunk ms_chunk;
+typedef struct ms_free_list_node ms_free_list_node;
+typedef struct ms_free_list ms_free_list;
 
-struct ms_chunk {
+/**
+ * Callback invoked before a node is created.
+ *
+ * @param list The free list.
+ * @param ptr A pointer to the memory where the node will be created.
+ * @param size The size in bytes of the node being created.
+ * @param user The user value.
+ */
+typedef void (*ms_free_list_on_before_node_create_clbk)(
+  ms_free_list * const list,
+  void * const ptr,
+  size_t const size,
+  void * const user
+);
+
+/**
+ * Callback invoked before memory is allocated from one node.
+ *
+ * @param list The free list.
+ * @param node The node memory will be allocated from.
+ * @param size The size in bytes of the memory being allocated.
+ * @param user The user value.
+ */
+typedef void (*ms_free_list_on_before_alloc_from_node_clbk)(
+  ms_free_list * const list,
+  ms_free_list_node * const node,
+  size_t const size,
+  void * const user
+);
+
+struct ms_free_list {
+  ms_free_list_node *first;
+  void *user;
+  ms_free_list_on_before_node_create_clbk on_before_node_create;
+  ms_free_list_on_before_alloc_from_node_clbk on_before_alloc_from_node;
+};
+
+struct ms_free_list_node {
   /**
    * Next and previous chunks.
    *
    * When `next == NULL` this is the last chunk.
    * When `prev == NULL` this is the first chunk.
    */
-  ms_chunk *next, *prev;
+  ms_free_list_node *next, *prev;
 
   /**
    * Size in bytes of this chunk.
    */
   uint64_t size;
 };
+
+#ifdef MSLIB
+  void *ms_free_list_malloc(
+    ms_free_list *restrict const list,
+    size_t const count,
+    uint32_t const alignment,
+    size_t *restrict const out_free_list_node_size
+  );
+
+  void ms_free_list_free(ms_free_list *restrict const list, ms_free_list_node * node, size_t const size);
+
+  void ms_free_list_create_node(
+    ms_free_list* const list,
+    ms_free_list_node *restrict const chunk,
+    ms_free_list_node *restrict const prev,
+    ms_free_list_node *restrict const next,
+    uint64_t const size
+  );
+#endif // MSLIB
 
 /**
  * A heap of global memory, shared across the entire process.
@@ -189,9 +246,9 @@ typedef struct {
   uint64_t committed_size;
 
   /**
-   * First free chunk of this heap.
+   * List of free blocks of memory.
    */
-  ms_chunk *first;
+  ms_free_list free_list;
 } ms_heap;
 
 /**
@@ -349,5 +406,13 @@ MSAPI void* ms_stack_malloca(
  * @param stack The allocator.
  */
 MSAPI void ms_stack_clear(ms_stack * const restrict stack);
+
+typedef struct ms_arena ms_arena;
+
+struct ms_arena {
+  void *base;
+  uint64_t size;
+  ms_arena *next;
+};
 
 #endif // MS_MEMORY_H

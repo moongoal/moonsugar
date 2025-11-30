@@ -29,6 +29,7 @@ add_library(
   src/log/file.c
   src/memory/heap.c
   src/memory/stack.c
+  src/memory/freelist.c
   $<$<BOOL:${ENABLE_COMPRESS}>:src/compress.c>
 )
 
