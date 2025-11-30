@@ -23,6 +23,12 @@ add_library(
   src/memory/interface.c
   src/uri.c
   src/config.c
+  src/platform/sys/sys.c
+  src/log/log.c
+  src/log/console.c
+  src/log/file.c
+  src/memory/heap.c
+  src/memory/stack.c
   $<$<BOOL:${ENABLE_COMPRESS}>:src/compress.c>
 )
 
@@ -33,6 +39,8 @@ target_include_directories(
   $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/include>
   $<INSTALL_INTERFACE:include>
 )
+
+target_compile_definitions(moonsugar PRIVATE MSLIB)
 
 if(ENABLE_COMPRESS)
   target_link_libraries(
@@ -55,6 +63,10 @@ target_sources(
   BASE_DIRS include ${CMAKE_CURRENT_BINARY_DIR}/include
   FILES
     include/moonsugar/api.h
+    include/moonsugar/assert.h
+    include/moonsugar/log.h
+    include/moonsugar/platform.h
+    include/moonsugar/util.h
     include/moonsugar/coroutine.h
     include/moonsugar/path.h
     include/moonsugar/memory.h
@@ -64,17 +76,58 @@ target_sources(
     $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/compress.h>
 )
 
+if(WIN32)
+  target_sources(
+    moonsugar
+    PRIVATE 
+      src/platform/memory/os.win32.c
+      src/platform/sys/sys.win32.c
+  )
+elseif(UNIX)
+  target_sources(
+    moonsugar
+    PRIVATE 
+      src/platform/memory/os.unix.c
+  )
+endif()
+
+if(APPLE)
+  target_sources(
+    moonsugar
+    PRIVATE
+      src/platform/memory/os.osx.c
+  )
+endif()
+
+if(CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
+  target_sources(
+    moonsugar
+    PRIVATE
+      src/platform/sys/sys.x86.c
+  )
+elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+  target_sources(
+    moonsugar
+    PRIVATE
+      src/platform/sys/sys.arm.c
+  )
+endif()
+
 ms_configure_target(moonsugar)
 
 if(NOT ${moondance_FOUND})
   message(WARNING "Moondance not found. Tests will be disabled.")
 else()
   enable_testing()
-  ms_add_test(test-types test/types.c)
   ms_add_test(test-coroutine test/coroutine.c)
   ms_add_test(test-path test/path.c)
   ms_add_test(test-uri test/uri.c)
   ms_add_test(test-config test/config.c)
+  ms_add_test(test-log test/log.c)
+  ms_add_test(test-util test/util.c)
+
+  ms_add_test(test-memory-os test/memory/os.c)
+  ms_add_test(test-memory-heap test/memory/heap.c)
 
   if(ENABLE_COMPRESS)
     ms_add_test(test-compress test/compress.c)
