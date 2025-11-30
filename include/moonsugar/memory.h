@@ -190,24 +190,52 @@ struct ms_free_list_node {
   uint64_t size;
 };
 
-#ifdef MSLIB
-  void *ms_free_list_malloc(
-    ms_free_list *restrict const list,
-    size_t const count,
-    uint32_t const alignment,
-    size_t *restrict const out_free_list_node_size
-  );
+/**
+ * Allocate memory from a free list.
+ *
+ * @param list The list to allocate from.
+ * @param count The number of bytes to allocate.
+ * @param alignment The alignment boundary of the allocation.
+ * @param out_allocated_size Output total allocated size.
+ *
+ * @return The pointer to the allocated memory or NULL on failure.
+ */
+void *ms_free_list_malloc(
+  ms_free_list *restrict const list,
+  size_t const count,
+  uint32_t const alignment,
+  size_t *restrict const out_allocated_size
+);
 
-  void ms_free_list_free(ms_free_list *restrict const list, ms_free_list_node * node, size_t const size);
+/**
+ * Free memory from a node.
+ *
+ * @param list The free list the node was allocated from.
+ * @param ptr The pointer to the memory allocated via `ms_free_list_malloc()`.
+ * @param size The total amount of memory being deallocated, in bytes.
+ */
+void ms_free_list_free(
+  ms_free_list *restrict const list,
+  void * const ptr,
+  size_t const size
+);
 
-  void ms_free_list_create_node(
-    ms_free_list* const list,
-    ms_free_list_node *restrict const chunk,
-    ms_free_list_node *restrict const prev,
-    ms_free_list_node *restrict const next,
-    uint64_t const size
-  );
-#endif // MSLIB
+/**
+ * Create a new free list node.
+ *
+ * @param list The free list.
+ * @param node The node being created.
+ * @param prev The previous node.
+ * @param next The next node.
+ * @param size The size of the node, in bytes.
+ */
+void ms_free_list_create_node(
+  ms_free_list* const list,
+  ms_free_list_node *restrict const node,
+  ms_free_list_node *restrict const prev,
+  ms_free_list_node *restrict const next,
+  uint64_t const size
+);
 
 /**
  * A heap of global memory, shared across the entire process.
