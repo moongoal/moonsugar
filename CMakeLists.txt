@@ -30,6 +30,7 @@ add_library(
   src/memory/heap.c
   src/memory/stack.c
   src/memory/freelist.c
+  src/memory/arena.c
   $<$<BOOL:${ENABLE_COMPRESS}>:src/compress.c>
 )
 

@@ -193,7 +193,9 @@ static ms_free_list_node *find_prev_free_list_node(ms_free_list *restrict const 
   return NULL;
 }
 
-void ms_free_list_free(ms_free_list *restrict const list, ms_free_list_node * node, size_t const size) {
+void ms_free_list_free(ms_free_list *restrict const list, void * const ptr, size_t const size) {
+  ms_free_list_node * node = ptr;
+
   if(list->first) {
     ms_free_list_node *const prev = find_prev_free_list_node(list, node);
 

@@ -200,7 +200,7 @@ struct ms_free_list_node {
  *
  * @return The pointer to the allocated memory or NULL on failure.
  */
-void *ms_free_list_malloc(
+void * MSAPI ms_free_list_malloc(
   ms_free_list *restrict const list,
   size_t const count,
   uint32_t const alignment,
@@ -214,7 +214,7 @@ void *ms_free_list_malloc(
  * @param ptr The pointer to the memory allocated via `ms_free_list_malloc()`.
  * @param size The total amount of memory being deallocated, in bytes.
  */
-void ms_free_list_free(
+void MSAPI ms_free_list_free(
   ms_free_list *restrict const list,
   void * const ptr,
   size_t const size
@@ -229,7 +229,7 @@ void ms_free_list_free(
  * @param next The next node.
  * @param size The size of the node, in bytes.
  */
-void ms_free_list_create_node(
+void MSAPI ms_free_list_create_node(
   ms_free_list* const list,
   ms_free_list_node *restrict const node,
   ms_free_list_node *restrict const prev,
@@ -438,9 +438,75 @@ MSAPI void ms_stack_clear(ms_stack * const restrict stack);
 typedef struct ms_arena ms_arena;
 
 struct ms_arena {
+  ms_free_list free_list;
   void *base;
   uint64_t size;
   ms_arena *next;
+  ms_allocator *allocator;
 };
+
+/**
+ * Construct a new arena, requesting memory from the OS.
+ *
+ * @param arena The arena to construct.
+ * @param size The arena size.
+ * @param page_size The allocation page size.
+ *
+ * @return The new arena.
+ */
+MSAPI void ms_arena_construct(ms_arena *const arena, uint64_t const size, uint64_t const page_size);
+
+/**
+ * Destroy an existing arena.
+ *
+ * @param arena The arena to destroy.
+ */
+MSAPI void ms_arena_destroy(ms_arena *const arena);
+
+/**
+ * Allocate memory from the arena.
+ *
+ * @param arena The arena.
+ * @param count The number of bytes to allocate.
+ *
+ * @return A pointer to the allocated memory or NULL
+ *  on failure. This functions assumes a default alignment
+ *  of `MSMM_DEFAULT_ALIGNMENT` bytes.
+ */
+MSAPI MSUSERET void *ms_arena_malloc(ms_arena *const arena, size_t const count);
+
+/**
+ * Allocate memory from the arena.
+ *
+ * @param arena The arena.
+ * @param count The number of bytes to allocate.
+ * @param alignment Alignment constraint.
+ *
+ * @return A pointer to the allocated memory or NULL
+ *  on failure.
+ */
+MSAPI MSUSERET void * ms_arena_malloca(ms_arena *const arena, size_t const count, uint32_t const alignment);
+
+/**
+ * Re-allocate memory from the arena.
+ *
+ * @param arena The arena.
+ * @param new_count The new number of bytes to allocate.
+ *
+ * @return A pointer to the re-allocated memory or NULL
+ *  on failure. The returned pointer may be the same as
+ *  `ptr` if no memory relocation is necessary, `ptr` is returned;
+ *  if memory relocation is necessary, the existing data is copied.
+ */
+MSAPI MSUSERET void * ms_arena_realloc(ms_arena *const arena, void *const ptr, size_t const new_count);
+
+/**
+ * De-allocate previously allocaetd memory.
+ *
+ * @param arena The arena.
+ * @param ptr The pointer to the memory to free,
+ *  as returned from `allocate()`.
+ */
+MSAPI void ms_arena_free(ms_arena *const arena, void *const ptr);
 
 #endif // MS_MEMORY_H
