@@ -5,7 +5,7 @@
 #define THROW(err) do { result = err; goto on_error; } while(0)
 
 static voidpf zlib_alloc(voidpf opaque, uInt items, uInt size) {
-  return ms_malloc(opaque, (size_t)items * size);
+  return ms_malloc(opaque, (size_t)items * size, MS_DEFAULT_ALIGNMENT);
 }
 
 static void zlib_free(voidpf opaque, voidpf address) {

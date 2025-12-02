@@ -81,7 +81,7 @@ void ms_arena_destroy(ms_arena *const arena) {
 
 static ms_arena* create_next_arena(ms_arena * const arena) {
   uint64_t const size = (arena->size * 2) + sizeof(ms_arena);
-  ms_arena * const next = ms_malloc(arena->allocator, size);
+  ms_arena * const next = ms_malloc(arena->allocator, size, MS_DEFAULT_ALIGNMENT);
   void * const base = next + 1;
 
   ms_arena_construct(next, size, base);
@@ -89,7 +89,7 @@ static ms_arena* create_next_arena(ms_arena * const arena) {
   return next;
 }
 
-void * ms_arena_malloca(ms_arena *const arena, size_t const count, uint32_t alignment) {
+void * ms_arena_malloc(ms_arena *const arena, size_t const count, size_t alignment) {
   // Minimum alignment requirement
   alignment = ms_max(alignment, MS_DEFAULT_ALIGNMENT);
 
@@ -103,7 +103,7 @@ void * ms_arena_malloca(ms_arena *const arena, size_t const count, uint32_t alig
         arena->next = create_next_arena(arena);
       }
 
-      return ms_arena_malloca(arena->next, count, alignment);
+      return ms_arena_malloc(arena->next, count, alignment);
     }
 
     uint8_t *const aligned_min_ptr = unaligned_ptr + sizeof(ms_header); // Assumes 0 padding
@@ -119,10 +119,6 @@ void * ms_arena_malloca(ms_arena *const arena, size_t const count, uint32_t alig
   }
 
   return NULL;
-}
-
-void *ms_arena_malloc(ms_arena *const arena, size_t const count) {
-  return ms_arena_malloca(arena, count, MS_DEFAULT_ALIGNMENT);
 }
 
 void ms_arena_free(ms_arena *const arena, void *const ptr) {
@@ -162,7 +158,7 @@ static void * realloc_from_free_list(ms_arena *const arena, void *restrict const
   size_t const available_size = hdr->size - hdr->padding - sizeof(ms_header);
 
   if(new_count > available_size) { // Not enough room for expansion
-    void *restrict const new_ptr = ms_arena_malloca(arena, new_count, hdr->alignment);
+    void *restrict const new_ptr = ms_arena_malloc(arena, new_count, hdr->alignment);
 
     // Copy the old data and free the existing allocation
     if(new_ptr) {
@@ -195,6 +191,6 @@ void *ms_arena_realloc(ms_arena *const arena, void *const ptr, size_t const new_
     }
   }
 
-  return ms_arena_malloc(arena, new_count);
+  return ms_arena_malloc(arena, new_count, MS_DEFAULT_ALIGNMENT);
 }
 

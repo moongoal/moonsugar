@@ -2,13 +2,7 @@
 #include <moondance/test.h>
 #include <moonsugar/compress.h>
 
-static void* allocate(void* p, size_t count) {
-  ((void)p);
-
-  return malloc(count);
-}
-
-static void* allocate_aligned(void* p, size_t count, size_t alignment) {
+static void* allocate(void* p, size_t count, size_t alignment) {
   ((void)p);
   ((void)alignment);
 
@@ -27,7 +21,7 @@ static void* reallocate(void* p, void * ptr, size_t new_count) {
   return realloc(ptr, new_count);
 }
 
-static ms_allocator g_allocator = { allocate, allocate_aligned, deallocate, reallocate, NULL };
+static ms_allocator g_allocator = { allocate, deallocate, reallocate, NULL };
 
 MD_CASE(compress_decompress__cycle) {
   char input[] = "some random text to compress";

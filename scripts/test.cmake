@@ -4,6 +4,7 @@ include(scripts/target.cmake)
 
 function(ms_add_test name source)
   add_executable(${name} ${source})
+  target_compile_definitions(${name} PRIVATE MS_TEST_SUITE)
   target_link_libraries(${name} PRIVATE moondance::moondance moonsugar)
   ms_configure_target(${name})
   

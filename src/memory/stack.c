@@ -29,14 +29,10 @@ void ms_stack_destroy(ms_stack * const restrict stack) {
   memset(stack, 0, sizeof(ms_stack));
 }
 
-void* ms_stack_malloc(ms_stack * const restrict stack, uint64_t const size) {
-  return ms_stack_malloca(stack, size, MS_DEFAULT_ALIGNMENT);
-}
-
-void* ms_stack_malloca(
+void* ms_stack_malloc(
   ms_stack * const restrict stack,
-  uint64_t size,
-  uint64_t const alignment
+  size_t size,
+  size_t const alignment
 ) {
   MS_ASSERT(stack);
 

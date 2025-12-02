@@ -58,7 +58,12 @@ typedef enum {
   /**
    * One or more arguments are invalid.
    */
-  MS_RESULT_INVALID_ARGUMENT
+  MS_RESULT_INVALID_ARGUMENT,
+
+	/**
+   * Memory allocation failed.
+   */
+	MS_RESULT_MEMORY
 } ms_result;
 
 typedef enum {

@@ -31,6 +31,7 @@ add_library(
   src/memory/stack.c
   src/memory/freelist.c
   src/memory/arena.c
+  src/containers/bitset.c
   $<$<BOOL:${ENABLE_COMPRESS}>:src/compress.c>
 )
 
@@ -74,6 +75,7 @@ target_sources(
     include/moonsugar/memory.h
     include/moonsugar/uri.h
     include/moonsugar/config.h
+    include/moonsugar/containers.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/moonsugar/version.h
     $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/compress.h>
 )
@@ -130,6 +132,8 @@ else()
 
   ms_add_test(test-memory-os test/memory/os.c)
   ms_add_test(test-memory-heap test/memory/heap.c)
+
+  ms_add_test(test-containers-bitset test/containers/bitset.c)
 
   if(ENABLE_COMPRESS)
     ms_add_test(test-compress test/compress.c)

@@ -30,7 +30,7 @@ MD_CASE(ctor) {
 }
 
 MD_CASE(allocate) {
-  void * const ptr = ms_heap_malloc(&heap, PAGE_SIZE - 1);
+  void * const ptr = ms_heap_malloc(&heap, PAGE_SIZE - 1, MS_DEFAULT_ALIGNMENT);
   const ms_header * const hdr = ms_heap_get_header(ptr);
 
   md_assert(ptr != NULL);
@@ -39,15 +39,15 @@ MD_CASE(allocate) {
 }
 
 MD_CASE(free) {
-  void * const ptr_before = ms_heap_malloc(&heap, PAGE_SIZE);
+  void * const ptr_before = ms_heap_malloc(&heap, PAGE_SIZE, MS_DEFAULT_ALIGNMENT);
   ms_heap_free(&heap, ptr_before);
 
-  void * const ptr_after = ms_heap_malloc(&heap, PAGE_SIZE);
+  void * const ptr_after = ms_heap_malloc(&heap, PAGE_SIZE, MS_DEFAULT_ALIGNMENT);
   md_assert(ptr_before == ptr_after);
 }
 
 MD_CASE(allocate_zero) {
-  void * const ptr = ms_heap_malloc(&heap, 0);
+  void * const ptr = ms_heap_malloc(&heap, 0, MS_DEFAULT_ALIGNMENT);
 
   md_assert(ptr == NULL);
 }
@@ -57,7 +57,7 @@ MD_CASE(free_zero) {
 }
 
 MD_CASE(realloc_less) {
-  void * const ptr_before = ms_heap_malloc(&heap, PAGE_SIZE);
+  void * const ptr_before = ms_heap_malloc(&heap, PAGE_SIZE, MS_DEFAULT_ALIGNMENT);
   md_assert(ptr_before != NULL);
   const ms_header * hdr = ms_heap_get_header(ptr_before);
   size_t const size_before = hdr->size;
@@ -71,7 +71,7 @@ MD_CASE(realloc_less) {
 }
 
 MD_CASE(realloc_more_within_page_boundary) {
-  void * const ptr_before = ms_heap_malloc(&heap, 10);
+  void * const ptr_before = ms_heap_malloc(&heap, 10, MS_DEFAULT_ALIGNMENT);
   md_assert(ptr_before != NULL);
   const ms_header * hdr = ms_heap_get_header(ptr_before);
   size_t const size_before = hdr->size;
@@ -88,7 +88,7 @@ MD_CASE(realloc_more_within_page_boundary) {
 }
 
 MD_CASE(realloc_more_cross_page_boundary) {
-  void * const ptr_before = ms_heap_malloc(&heap, 1);
+  void * const ptr_before = ms_heap_malloc(&heap, 1, MS_DEFAULT_ALIGNMENT);
   md_assert(ptr_before != NULL);
   const ms_header * hdr = ms_heap_get_header(ptr_before);
   size_t const size_before = hdr->size;
@@ -103,7 +103,7 @@ MD_CASE(realloc_more_cross_page_boundary) {
 }
 
 MD_CASE(realloc_same) {
-  void * const ptr_before = ms_heap_malloc(&heap, PAGE_SIZE);
+  void * const ptr_before = ms_heap_malloc(&heap, PAGE_SIZE, MS_DEFAULT_ALIGNMENT);
   md_assert(ptr_before != NULL);
 
   void * const ptr_after = ms_heap_realloc(&heap, ptr_before, PAGE_SIZE);
@@ -111,7 +111,7 @@ MD_CASE(realloc_same) {
 }
 
 MD_CASE(realloc_zero) {
-  void * const ptr_before = ms_heap_malloc(&heap, 1);
+  void * const ptr_before = ms_heap_malloc(&heap, 1, MS_DEFAULT_ALIGNMENT);
   md_assert(ptr_before != NULL);
 
   void * const ptr_after = ms_heap_realloc(&heap, ptr_before, 0);
@@ -121,8 +121,8 @@ MD_CASE(realloc_zero) {
 // Allocate two blocks and free them in allocation order
 // The allocator must fall back into its IC
 MD_CASE(inverse_free) {
-  void * const ptr1 = ms_heap_malloc(&heap, 1);
-  void * const ptr2 = ms_heap_malloc(&heap, 1);
+  void * const ptr1 = ms_heap_malloc(&heap, 1, MS_DEFAULT_ALIGNMENT);
+  void * const ptr2 = ms_heap_malloc(&heap, 1, MS_DEFAULT_ALIGNMENT);
 
   md_assert(ptr1 != NULL);
   md_assert(ptr2 != NULL);

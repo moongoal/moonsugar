@@ -12,16 +12,19 @@
 #define MS_DEFAULT_ALIGNMENT (8ULL)
 #define MS_HEAP_DEALLOC_THR (4194304ull)
 
-/**
- * Memory allocation callback.
- * 
- * @param user The user pointer as stored in the allocator.
- * @param count The number of bytes to allocate. Can be 0.
- *
- * @return A pointer to the allocated memory or NULL on failure.
- *  NULL is also returned if `count == 0`.
- */
-typedef void* (*ms_malloc_clbk)(void * const user, size_t const count);
+#define MS_ALLOCATOR_INIT(prefix, user) (ms_allocator) { \
+  prefix ## malloc, \
+  prefix ## free, \
+  prefix ## realloc, \
+  (user) \
+}
+
+#define MS_ALLOCATOR_DEF_HEAP(heap) (ms_allocator) { \
+  (ms_malloc_clbk)ms_heap_malloc, \
+  (ms_free_clbk)ms_heap_free, \
+  (ms_realloc_clbk)ms_heap_realloc, \
+  &(heap) \
+}
 
 /**
  * Aligned memory allocation callback.
@@ -34,7 +37,7 @@ typedef void* (*ms_malloc_clbk)(void * const user, size_t const count);
  * @return A pointer to the allocated memory or NULL on failure.
  *  NULL is also returned if `count == 0`.
  */
-typedef void* (*ms_malloca_clbk)(void * const user, size_t const count, size_t const alignment);
+typedef void* (*ms_malloc_clbk)(void * const user, size_t const count, size_t const alignment);
 
 /**
  * Memory deallocation callback.
@@ -60,14 +63,9 @@ typedef void* (*ms_realloc_clbk)(void * const user, void * const ptr, size_t con
 
 typedef struct {
   /**
-   * Memory allocator.
-   */
-  ms_malloc_clbk allocate;
-
-  /**
    * Aligned memory allocator.
    */
-  ms_malloca_clbk allocate_aligned;
+  ms_malloc_clbk allocate;
 
   /**
    * Memory deallocator.
@@ -86,18 +84,11 @@ typedef struct {
 } ms_allocator;
 
 /**
- * Allocate memory.
- *
- * @see ms_malloc_clbk
- */
-MSUSERET void* MSAPI ms_malloc(ms_allocator const * const allocator, size_t const size);
-
-/**
  * Allocate aligned memory.
  *
  * @see ms_malloca_clbk
  */
-MSUSERET void* MSAPI ms_malloca(ms_allocator const * const allocator, size_t const size, size_t const alignment);
+MSUSERET void* MSAPI ms_malloc(ms_allocator const * const allocator, size_t const size, size_t const alignment);
 
 /**
  * Reallocate memory.
@@ -296,19 +287,6 @@ MSAPI void ms_heap_construct(ms_heap *const heap, uint64_t const size, uint64_t 
  * @param heap The heap to destroy.
  */
 MSAPI void ms_heap_destroy(ms_heap *const heap);
-
-/**
- * Allocate memory from the heap.
- *
- * @param heap The heap.
- * @param count The number of bytes to allocate.
- *
- * @return A pointer to the allocated memory or NULL
- *  on failure. This functions assumes a default alignment
- *  of `MSMM_DEFAULT_ALIGNMENT` bytes.
- */
-MSAPI MSUSERET void *ms_heap_malloc(ms_heap *const heap, size_t const count);
-
 /**
  * Allocate memory from the heap.
  *
@@ -319,7 +297,7 @@ MSAPI MSUSERET void *ms_heap_malloc(ms_heap *const heap, size_t const count);
  * @return A pointer to the allocated memory or NULL
  *  on failure.
  */
-MSAPI MSUSERET void * ms_heap_malloca(ms_heap *const heap, size_t const count, uint32_t const alignment);
+MSAPI MSUSERET void * ms_heap_malloc(ms_heap *const heap, size_t const count, size_t const alignment);
 
 /**
  * Re-allocate memory from the heap.
@@ -408,24 +386,14 @@ MSAPI void ms_stack_destroy(ms_stack * const restrict stack);
  *
  * @param stack The allocator.
  * @param size The size of the allocator, in bytes.
- *
- * @return A pointer to the allocated memory.
- */
-MSAPI void* ms_stack_malloc(ms_stack * const restrict stack, uint64_t const size);
-
-/**
- * Allocate memory from a stack allocator.
- *
- * @param stack The allocator.
- * @param size The size of the allocator, in bytes.
  * @param alignment The alignment boundary
  *
  * @return A pointer to the allocated memory.
  */
-MSAPI void* ms_stack_malloca(
+MSAPI void* ms_stack_malloc(
   ms_stack * const restrict stack,
-  uint64_t size,
-  uint64_t const alignment
+  size_t size,
+  size_t const alignment
 );
 
 /**
@@ -468,24 +436,12 @@ MSAPI void ms_arena_destroy(ms_arena *const arena);
  *
  * @param arena The arena.
  * @param count The number of bytes to allocate.
- *
- * @return A pointer to the allocated memory or NULL
- *  on failure. This functions assumes a default alignment
- *  of `MSMM_DEFAULT_ALIGNMENT` bytes.
- */
-MSAPI MSUSERET void *ms_arena_malloc(ms_arena *const arena, size_t const count);
-
-/**
- * Allocate memory from the arena.
- *
- * @param arena The arena.
- * @param count The number of bytes to allocate.
  * @param alignment Alignment constraint.
  *
  * @return A pointer to the allocated memory or NULL
  *  on failure.
  */
-MSAPI MSUSERET void * ms_arena_malloca(ms_arena *const arena, size_t const count, uint32_t const alignment);
+MSAPI MSUSERET void * ms_arena_malloc(ms_arena *const arena, size_t const count, size_t const alignment);
 
 /**
  * Re-allocate memory from the arena.

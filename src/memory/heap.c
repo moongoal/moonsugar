@@ -131,7 +131,7 @@ void ms_heap_destroy(ms_heap *const heap) {
   heap->base = NULL;
 }
 
-void * ms_heap_malloca(ms_heap *const heap, size_t const count, uint32_t alignment) {
+void * ms_heap_malloc(ms_heap *const heap, size_t const count, size_t alignment) {
   // Minimum alignment requirement
   alignment = ms_max(alignment, MS_DEFAULT_ALIGNMENT);
 
@@ -157,10 +157,6 @@ void * ms_heap_malloca(ms_heap *const heap, size_t const count, uint32_t alignme
   }
 
   return NULL;
-}
-
-void *ms_heap_malloc(ms_heap *const heap, size_t const count) {
-  return ms_heap_malloca(heap, count, MS_DEFAULT_ALIGNMENT);
 }
 
 void ms_heap_free(ms_heap *const heap, void *const ptr) {
@@ -195,7 +191,7 @@ static void * realloc_from_free_list(ms_heap *const heap, void *restrict const p
   size_t const available_size = hdr->size - hdr->padding - sizeof(ms_header);
 
   if(new_count > available_size) { // Not enough room for expansion
-    void *restrict const new_ptr = ms_heap_malloca(heap, new_count, hdr->alignment);
+    void *restrict const new_ptr = ms_heap_malloc(heap, new_count, hdr->alignment);
 
     // Copy the old data and free the existing allocation
     if(new_ptr) {
@@ -228,5 +224,5 @@ void *ms_heap_realloc(ms_heap *const heap, void *const ptr, size_t const new_cou
     }
   }
 
-  return ms_heap_malloc(heap, new_count);
+  return ms_heap_malloc(heap, new_count, MS_DEFAULT_ALIGNMENT);
 }
