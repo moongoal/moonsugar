@@ -450,11 +450,11 @@ struct ms_arena {
  *
  * @param arena The arena to construct.
  * @param size The arena size.
- * @param page_size The allocation page size.
+ * @param base_ptr The base memory pointer.
  *
  * @return The new arena.
  */
-MSAPI void ms_arena_construct(ms_arena *const arena, uint64_t const size, uint64_t const page_size);
+MSAPI void ms_arena_construct(ms_arena *const arena, uint64_t const size, void * const base_ptr);
 
 /**
  * Destroy an existing arena.

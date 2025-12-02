@@ -38,10 +38,7 @@ void on_before_alloc_from_node(
   ((void)user);
 }
 
-void ms_arena_construct(ms_arena *const arena, uint64_t const size, uint64_t const page_size) {
-  MS_ASSERT(ms_is_multiple(size, page_size));
-  MS_ASSERT(ms_is_power2(page_size));
-
+void ms_arena_construct(ms_arena *const arena, uint64_t const size, void * const base_ptr) {
   ms_sys_info const *restrict const si = ms_get_sys_info();
 
   if(si->alloc_granularity < MS_DEFAULT_ALIGNMENT) {
@@ -51,8 +48,6 @@ void ms_arena_construct(ms_arena *const arena, uint64_t const size, uint64_t con
         (uint64_t)MS_DEFAULT_ALIGNMENT
     );
   }
-
-  void *const base_ptr = ms_reserve(size);
 
   *arena = (ms_arena){
       (ms_free_list) {
@@ -73,9 +68,25 @@ void ms_arena_construct(ms_arena *const arena, uint64_t const size, uint64_t con
 }
 
 void ms_arena_destroy(ms_arena *const arena) {
+  // Destroy internally allocated arenas
+  for(ms_arena * a = arena->next, *b; a != NULL; a = b) {
+    b = a->next;
+    ms_free(a->allocator, a);
+  }
+
   arena->free_list.first = NULL;
   arena->size = 0;
   arena->base = NULL;
+}
+
+static ms_arena* create_next_arena(ms_arena * const arena) {
+  uint64_t const size = (arena->size * 2) + sizeof(ms_arena);
+  ms_arena * const next = ms_malloc(arena->allocator, size);
+  void * const base = next + 1;
+
+  ms_arena_construct(next, size, base);
+
+  return next;
 }
 
 void * ms_arena_malloca(ms_arena *const arena, size_t const count, uint32_t alignment) {
@@ -88,7 +99,11 @@ void * ms_arena_malloca(ms_arena *const arena, size_t const count, uint32_t alig
     uint8_t *const unaligned_ptr = ms_free_list_malloc(&arena->free_list, count, alignment, &chunk_size);
 
     if(unaligned_ptr == NULL) {
-      return NULL; // TODO: create new arena and allocate from it
+      if(arena->next == NULL) {
+        arena->next = create_next_arena(arena);
+      }
+
+      return ms_arena_malloca(arena->next, count, alignment);
     }
 
     uint8_t *const aligned_min_ptr = unaligned_ptr + sizeof(ms_header); // Assumes 0 padding
@@ -118,7 +133,26 @@ void ms_arena_free(ms_arena *const arena, void *const ptr) {
     ms_free_list_free(&arena->free_list, chunk, head->size);
   } else {
     if(ptr != NULL) {
-      ms_error("Attempting to free pointer not mallocd via this arena.");
+      if(arena->next != NULL) {
+        ms_arena_free(arena->next, ptr);
+
+        // Remove empty arena
+        // The first arena is never removed as we don't know how
+        // it's been allocated.
+        if(
+          arena->next->free_list.first != NULL
+          && arena->next->free_list.first->size == arena->next->size
+        ) {
+          ms_arena * const following = arena->next->next;
+
+          // Arenas internally allocated are all obtained via an
+          // individual allocation.
+          ms_free(arena->next->allocator, arena->next);
+          arena->next = following;
+        }
+      } else {
+        ms_error("Attempting to free pointer not mallocd via this arena.");
+      }
     }
   }
 }
