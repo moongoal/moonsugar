@@ -221,6 +221,7 @@ void *ms_heap_realloc(ms_heap *const heap, void *const ptr, size_t const new_cou
       }
     } else {
       ms_heap_free(heap, ptr);
+      return NULL;
     }
   }
 

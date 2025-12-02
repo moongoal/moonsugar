@@ -122,7 +122,7 @@ void *ms_free_list_malloc(
   ms_free_list *restrict const list,
   size_t const count,
   uint32_t const alignment,
-  size_t *restrict const out_free_list_node_size
+  size_t *restrict const out_total_size
 ) {
   size_t total_size = compute_free_list_node_size(count, alignment);
   ms_free_list_node *const chunk = find_smallest_free_free_list_node(list, total_size);
@@ -132,7 +132,7 @@ void *ms_free_list_malloc(
     total_size = ms_free_list_malloc_node(list, chunk, total_size);
   }
 
-  *out_free_list_node_size = total_size;
+  *out_total_size = total_size;
 
   return chunk;
 }

@@ -106,8 +106,8 @@ void MSAPI ms_free(ms_allocator const * const allocator, void * const ptr);
 
 typedef struct {
   /**
-   * Usable allocation size. This can be greater than the requested
-   * allocation size.
+   * Total allocation size (including any metadata and padding). This
+   * can be greater than the requested allocation size.
    */
   uint64_t size;
 
@@ -404,25 +404,46 @@ MSAPI void* ms_stack_malloc(
 MSAPI void ms_stack_clear(ms_stack * const restrict stack);
 
 typedef struct ms_arena ms_arena;
+typedef struct ms_arena_node ms_arena_node;
 
-struct ms_arena {
+struct ms_arena_node {
   ms_free_list free_list;
-  void *base;
-  uint64_t size;
-  ms_arena *next;
-  ms_allocator *allocator;
+  uint64_t total_size;
+  uint64_t allocated_size;
+  ms_arena_node *next;
+  uint8_t base[];
 };
 
 /**
- * Construct a new arena, requesting memory from the OS.
+ * An arena is a pre-allocated, disposable area of memory
+ * intended to centralise and speed-up the sub-allocation
+ * of related resources.
+ *
+ * Arenas are of fixed size but can be chained. Chained
+ * arenas will automatically be deallocated when they
+ * become empty. Each chained arena size is aligned
+ * to a multiple of the primary arena.
+ */
+struct ms_arena {
+  uint64_t base_size;
+  ms_arena_node *first;
+  ms_allocator allocator;
+};
+
+typedef struct {
+  uint64_t base_size;
+  ms_allocator allocator;
+} ms_arena_description;
+
+/**
+ * Construct a new arena.
  *
  * @param arena The arena to construct.
- * @param size The arena size.
- * @param base_ptr The base memory pointer.
+ * @param description The arena description.
  *
  * @return The new arena.
  */
-MSAPI void ms_arena_construct(ms_arena *const arena, uint64_t const size, void * const base_ptr);
+MSAPI void ms_arena_construct(ms_arena *const arena, ms_arena_description const * const description);
 
 /**
  * Destroy an existing arena.
