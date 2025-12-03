@@ -99,7 +99,7 @@ if(APPLE)
   target_sources(
     moonsugar
     PRIVATE
-      src/platform/memory/os.osx.c
+      src/platform/sys/sys.osx.c
   )
 endif()
 

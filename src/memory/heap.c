@@ -197,7 +197,7 @@ static void * realloc_from_free_list(ms_heap *const heap, void *restrict const p
     if(new_ptr) {
       ms_free_list_node *chunk = (ms_free_list_node *)((uint8_t *)hdr - hdr->padding);
 
-      memcpy_s(new_ptr, new_count, ptr, available_size);
+      memcpy(new_ptr, ptr, available_size);
       ms_free_list_free(&heap->free_list, chunk, available_size);
 
       return new_ptr;

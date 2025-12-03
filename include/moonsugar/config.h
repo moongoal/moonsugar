@@ -39,7 +39,7 @@
  *  MS_RESULT_SUCCESS on success
  *  any other error code on failure.
  */
-typedef int (*ms_config_clbk)(void * const ctx, char const * const key, char const * const value);
+typedef ms_result (*ms_config_clbk)(void * const ctx, char const * const key, char const * const value);
 
 /**
  * Parse text configuration.

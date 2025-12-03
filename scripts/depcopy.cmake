@@ -15,7 +15,7 @@ function(ms_copy_dependencies)
 
   find_file(
     MS_ZLIB_PATH
-    NAMES zlib.dll zlib1.dll zlib.so zlib1.so
+    NAMES zlib.dll zlib1.dll zlib.so zlib1.so libz.1.dylib
     PATH_SUFFIXES bin lib
     REQUIRED
   )
