@@ -58,7 +58,7 @@ static void commit_free_list_node_memory(
   }
 }
 
-void on_before_node_create(
+static void on_before_node_create(
   ms_free_list * const list,
   void * const ptr,
   size_t const size,
@@ -71,7 +71,7 @@ void on_before_node_create(
   commit_free_list_node_memory(heap, ptr, size);
 }
 
-void on_before_alloc_from_node(
+static void on_before_alloc_from_node(
   ms_free_list * const list,
   ms_free_list_node * const node,
   size_t const size,

@@ -26,6 +26,13 @@
   &(heap) \
 }
 
+#define MS_ALLOCATOR_DEF_ARENA(arena) (ms_allocator) { \
+  (ms_malloc_clbk)ms_arena_malloc, \
+  (ms_free_clbk)ms_arena_free, \
+  (ms_realloc_clbk)ms_arena_realloc, \
+  &(arena) \
+}
+
 /**
  * Aligned memory allocation callback.
  * 
@@ -413,6 +420,18 @@ struct ms_arena_node {
   ms_arena_node *next;
   uint8_t base[];
 };
+
+/**
+ * Get the allocation header for a given pointer.
+ *
+ * @param ptr The pointer to get the allocation header for.
+ *  The pointer must be as returned from one of the arena
+ *  allocation functions. This argument is assumed to never
+ *  be NULL.
+ *
+ * @return A pointer to the header of the allocation.
+ */
+ms_header * MSAPI ms_arena_get_header(void *const ptr);
 
 /**
  * An arena is a pre-allocated, disposable area of memory

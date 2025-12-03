@@ -132,6 +132,7 @@ else()
 
   ms_add_test(test-memory-os test/memory/os.c)
   ms_add_test(test-memory-heap test/memory/heap.c)
+  ms_add_test(test-memory-arena test/memory/arena.c)
 
   ms_add_test(test-containers-bitset test/containers/bitset.c)
 

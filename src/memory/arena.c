@@ -12,9 +12,9 @@
 #define DOES_PTR_BELONG(arena, ptr) \
   ((uint8_t*)ptr > arena->base && (uint8_t *)ptr < (arena->base + arena->total_size))
 
-static ms_header *ms_arena_get_header(void *const ptr) { return (ms_header *)(ptr)-1; }
+ms_header *ms_arena_get_header(void *const ptr) { return (ms_header *)(ptr)-1; }
 
-void on_before_node_create(
+static void on_before_node_create(
   ms_free_list * const list,
   void * const ptr,
   size_t const size,
@@ -26,7 +26,7 @@ void on_before_node_create(
   ((void)user);
 }
 
-void on_before_alloc_from_node(
+static void on_before_alloc_from_node(
   ms_free_list * const list,
   ms_free_list_node * const node,
   size_t const size,
