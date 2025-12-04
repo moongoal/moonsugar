@@ -6,6 +6,7 @@ project(
 )
 
 option(ENABLE_COMPRESS "Enable the compression module" ON)
+option(ENABLE_HASH "Enable the hashing module" ON)
 
 include(CPack)
 include(scripts/target.cmake)
@@ -14,7 +15,14 @@ include(scripts/install.cmake)
 include(scripts/depcopy.cmake)
 
 find_package(moondance CONFIG)
-find_package(ZLIB REQUIRED)
+
+if(ENABLE_COMPRESS)
+  find_package(ZLIB REQUIRED)
+endif()
+
+if(ENABLE_HASH)
+  find_package(xxHash CONFIG REQUIRED)
+endif()
 
 add_library(
   moonsugar
@@ -34,6 +42,7 @@ add_library(
   src/containers/bitset.c
   src/containers/paged-vector.c
   $<$<BOOL:${ENABLE_COMPRESS}>:src/compress.c>
+  $<$<BOOL:${ENABLE_HASH}>:src/hash.c>
 )
 
 target_include_directories(
@@ -45,6 +54,14 @@ target_include_directories(
 )
 
 target_compile_definitions(moonsugar PRIVATE MSLIB)
+
+if(ENABLE_HASH)
+  target_link_libraries(
+    moonsugar
+    PRIVATE 
+    xxHash::xxhash
+  )
+endif()
 
 if(ENABLE_COMPRESS)
   target_link_libraries(
@@ -79,6 +96,7 @@ target_sources(
     include/moonsugar/containers.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/moonsugar/version.h
     $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/compress.h>
+    $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/hash.h>
 )
 
 if(WIN32)
