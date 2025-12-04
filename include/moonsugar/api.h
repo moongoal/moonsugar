@@ -63,7 +63,17 @@ typedef enum {
 	/**
    * Memory allocation failed.
    */
-	MS_RESULT_MEMORY
+	MS_RESULT_MEMORY,
+
+  /**
+   * The container is full.
+   */
+	MS_RESULT_FULL,
+
+  /**
+   * The container is empty.
+   */
+	MS_RESULT_EMPTY
 } ms_result;
 
 typedef enum {
@@ -94,5 +104,57 @@ typedef enum {
 #define ms_thread_fence __atomic_thread_fence
 
 #define MS_ATOMIC(x) x
+
+/**
+ * The raw handle type.
+ */
+typedef uint32_t ms_handle;
+
+/**
+ * Declare a new handle type.
+ *
+ * @param name The handle type name.
+ */
+#define MS_HDECL(name) typedef struct { ms_handle raw; } name
+
+/**
+ * Numerically compare two handles.
+ *
+ * @param h1 The first handle.
+ * @param h2 The second handle.
+ *
+ * @return `0` if the two are the same handle,
+ *  `>0` if h2 is larger in value than h1,
+ *  `<0` otherwise.
+ */
+#define ms_hrcmp(h1, h2) ((h2) - (h1))
+#define ms_hcmp(h1, h2) (ms_hrcmp((h1).raw, (h2).raw))
+
+/**
+ * Compare two handles for equality.
+ *
+ * @param h1 The first handle.
+ * @param h2 The second handle.
+ *
+ * @return True if the two are the same handle,
+ *  false otherwise.
+ */
+#define ms_hreq(h1, h2) ((h2) == (h1))
+#define ms_heq(h1, h2) (ms_hreq((h1).raw, (h2).raw))
+
+/**
+ * Test whether a handle is valid.
+ *
+ * @param h The handle to test.
+ *
+ * @return True if the handle is valid, false if not.
+ */
+#define ms_hraw_is_valid(h) ((h) != MS_HINVALID)
+#define ms_his_valid(h) (ms_hraw_is_valid((h).raw))
+
+/**
+ * The invalid handle value.
+ */
+#define MS_HINVALID ((ms_handle)UINT32_MAX)
 
 #endif // MS_API_H

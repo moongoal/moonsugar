@@ -6,7 +6,6 @@ project(
 )
 
 option(ENABLE_COMPRESS "Enable the compression module" ON)
-option(ENABLE_HASH "Enable the hashing module" ON)
 
 include(CPack)
 include(scripts/target.cmake)
@@ -20,9 +19,7 @@ if(ENABLE_COMPRESS)
   find_package(ZLIB REQUIRED)
 endif()
 
-if(ENABLE_HASH)
-  find_package(xxHash CONFIG REQUIRED)
-endif()
+find_package(xxHash CONFIG REQUIRED)
 
 add_library(
   moonsugar
@@ -31,6 +28,8 @@ add_library(
   src/memory/interface.c
   src/uri.c
   src/config.c
+  src/functional.c
+  src/hash.c
   src/platform/sys/sys.c
   src/log/log.c
   src/log/console.c
@@ -41,8 +40,8 @@ add_library(
   src/memory/arena.c
   src/containers/bitset.c
   src/containers/paged-vector.c
+  src/containers/map.c
   $<$<BOOL:${ENABLE_COMPRESS}>:src/compress.c>
-  $<$<BOOL:${ENABLE_HASH}>:src/hash.c>
 )
 
 target_include_directories(
@@ -55,13 +54,11 @@ target_include_directories(
 
 target_compile_definitions(moonsugar PRIVATE MSLIB)
 
-if(ENABLE_HASH)
-  target_link_libraries(
-    moonsugar
-    PRIVATE 
-    xxHash::xxhash
-  )
-endif()
+target_link_libraries(
+  moonsugar
+  PRIVATE 
+  xxHash::xxhash
+)
 
 if(ENABLE_COMPRESS)
   target_link_libraries(
@@ -94,6 +91,7 @@ target_sources(
     include/moonsugar/uri.h
     include/moonsugar/config.h
     include/moonsugar/containers.h
+    include/moonsugar/functional.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/moonsugar/version.h
     $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/compress.h>
     $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/hash.h>
@@ -148,6 +146,7 @@ else()
   ms_add_test(test-config test/config.c)
   ms_add_test(test-log test/log.c)
   ms_add_test(test-util test/util.c)
+  ms_add_test(test-handle test/handle.c)
 
   ms_add_test(test-memory-os test/memory/os.c)
   ms_add_test(test-memory-heap test/memory/heap.c)
@@ -155,6 +154,7 @@ else()
 
   ms_add_test(test-containers-bitset test/containers/bitset.c)
   ms_add_test(test-containers-paged-vector test/containers/paged-vector.c)
+  ms_add_test(test-containers-map test/containers/map.c)
 
   if(ENABLE_COMPRESS)
     ms_add_test(test-compress test/compress.c)
