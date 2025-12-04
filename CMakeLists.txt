@@ -45,6 +45,7 @@ add_library(
   src/memory/freelist.c
   src/memory/arena.c
   src/containers/bitset.c
+  src/containers/ring.c
   src/containers/paged-vector.c
 
   $<$<BOOL:${ENABLE_HASH}>:src/containers/map.c>
@@ -103,6 +104,7 @@ target_sources(
     include/moonsugar/config.h
     include/moonsugar/functional.h
     include/moonsugar/containers/bitset.h
+    include/moonsugar/containers/ring.h
     include/moonsugar/containers/paged-vector.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/moonsugar/version.h
 
@@ -169,6 +171,7 @@ else()
 
   ms_add_test(test-containers-bitset test/containers/bitset.c)
   ms_add_test(test-containers-paged-vector test/containers/paged-vector.c)
+  ms_add_test(test-ring test/containers/ring.c)
 
   if(ENABLE_HASH)
     ms_add_test(test-containers-map test/containers/map.c)
