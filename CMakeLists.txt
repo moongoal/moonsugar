@@ -32,6 +32,7 @@ add_library(
   src/memory/freelist.c
   src/memory/arena.c
   src/containers/bitset.c
+  src/containers/paged-vector.c
   $<$<BOOL:${ENABLE_COMPRESS}>:src/compress.c>
 )
 
@@ -135,6 +136,7 @@ else()
   ms_add_test(test-memory-arena test/memory/arena.c)
 
   ms_add_test(test-containers-bitset test/containers/bitset.c)
+  ms_add_test(test-containers-paged-vector test/containers/paged-vector.c)
 
   if(ENABLE_COMPRESS)
     ms_add_test(test-compress test/compress.c)
