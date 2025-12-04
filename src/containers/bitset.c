@@ -1,7 +1,7 @@
 #include <memory.h>
 #include <moonsugar/assert.h>
 #include <moonsugar/util.h>
-#include <moonsugar/containers.h>
+#include <moonsugar/containers/bitset.h>
 
 #define DIV64(x) ((x) >> 6)
 #define MOD64(x) ((x) & 0x3f)

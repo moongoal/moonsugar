@@ -1,7 +1,6 @@
 #include <moonsugar/test.h>
 #include <moonsugar/util.h>
-#include <moonsugar/log.h>
-#include <moonsugar/containers.h>
+#include <moonsugar/containers/bitset.h>
 
 #define INITIAL_CAPACITY 16
 

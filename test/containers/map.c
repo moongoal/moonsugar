@@ -1,5 +1,5 @@
 #include <moonsugar/test.h>
-#include <moonsugar/containers.h>
+#include <moonsugar/containers/map.h>
 
 static ms_result test_map_construct(ms_map * const map, uint32_t const initial_capacity) {
   return ms_map_construct(map, &(ms_map_description) {

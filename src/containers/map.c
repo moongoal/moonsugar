@@ -1,11 +1,11 @@
 #include <memory.h>
 #include <moonsugar/assert.h>
 #include <moonsugar/util.h>
-#include <moonsugar/containers.h>
+#include <moonsugar/containers/map.h>
 
 ms_result ms_map_construct(
-  ms_map *restrict const map, 
-  ms_map_description const *restrict const description
+  ms_map *const map, 
+  ms_map_description const *const description
 ) { 
   MS_ASSERT(map); 
   MS_ASSERT(description); 
@@ -19,7 +19,7 @@ ms_result ms_map_construct(
     return MS_RESULT_INVALID_ARGUMENT; 
   } 
 
-  void *restrict const keys = ms_malloc(
+  void *const keys = ms_malloc(
     &description->allocator, 
     description->key_size * description->capacity,
 		MS_DEFAULT_ALIGNMENT
@@ -29,7 +29,7 @@ ms_result ms_map_construct(
     return MS_RESULT_MEMORY; 
   } 
 
-  void *restrict const values = ms_malloc(
+  void *const values = ms_malloc(
     &description->allocator, 
     description->value_size * description->capacity,
 		MS_DEFAULT_ALIGNMENT
@@ -64,7 +64,7 @@ ms_result ms_map_construct(
   return MS_RESULT_SUCCESS; 
 } 
 
-void ms_map_destroy(ms_map *restrict const map) { 
+void ms_map_destroy(ms_map *const map) { 
   MS_ASSERT(map); 
 
   ms_free(&map->allocator, map->values); 
@@ -75,8 +75,8 @@ void ms_map_destroy(ms_map *restrict const map) {
 } 
 
 static uint32_t ms_map_get_index( 
-  ms_map const *restrict const map, 
-  void const *restrict const key
+  ms_map const *const map, 
+  void const *const key
 ) { 
   uint64_t const h = map->hash_key(key); 
   uint32_t const w = map->capacity - 1; 
@@ -84,8 +84,8 @@ static uint32_t ms_map_get_index(
   for(uint32_t local_index = 0; local_index < MS_MAP_SLICE_SIZE; 
     ++local_index) { 
     uint32_t global_index = (h + local_index) & w; 
-    void const *restrict const key2 = (uint8_t*)map->keys + global_index * map->key_size; 
-    void const *restrict const key1 = key; 
+    void const *const key2 = (uint8_t*)map->keys + global_index * map->key_size; 
+    void const *const key1 = key; 
 
     if(map->are_keys_equal(key1, key2)) { 
       return global_index; 
@@ -96,8 +96,8 @@ static uint32_t ms_map_get_index(
 } 
 
 void *ms_map_get_value(
-  ms_map const *restrict const map, 
-  void const *restrict const key
+  ms_map const *const map, 
+  void const *const key
 ) { 
   MS_ASSERT(map); 
   MS_ASSERT(key); 
@@ -112,8 +112,8 @@ void *ms_map_get_value(
 } 
 
 void *ms_map_get_key(
-  ms_map const *restrict const map, 
-  void const *restrict const key
+  ms_map const *const map, 
+  void const *const key
 ) { 
   MS_ASSERT(map); 
   MS_ASSERT(key); 
@@ -128,15 +128,15 @@ void *ms_map_get_key(
 } 
 
 static uint32_t find_empty( 
-  ms_map const *restrict const map, 
-  void const *restrict const key
+  ms_map const *const map, 
+  void const *const key
 ) { 
   uint64_t const h = map->hash_key(key); 
   uint32_t const w = map->capacity - 1; 
 
   for(uint32_t local_index = 0; local_index < MS_MAP_SLICE_SIZE; ++local_index) { 
     uint32_t const global_index = (h + local_index) & w; 
-    void const *restrict const key = MS_MAP_GET_KEY(map, global_index);
+    void const *const key = MS_MAP_GET_KEY(map, global_index);
 
     if(map->is_key_none(key)) { 
       return global_index; 
@@ -147,7 +147,7 @@ static uint32_t find_empty(
 } 
 
 ms_result ms_map_resize(
-  ms_map *restrict const map, 
+  ms_map *const map, 
   uint32_t const new_capacity
 ) { 
   MS_ASSERT(map); 
@@ -156,13 +156,13 @@ ms_result ms_map_resize(
     return MS_RESULT_INVALID_ARGUMENT; 
   } 
 
-  void *restrict const new_keys = ms_malloc(&map->allocator, new_capacity * map->key_size, MS_DEFAULT_ALIGNMENT); 
+  void *const new_keys = ms_malloc(&map->allocator, new_capacity * map->key_size, MS_DEFAULT_ALIGNMENT); 
 
   if(new_keys == NULL && new_capacity > 0) { 
     return MS_RESULT_MEMORY; 
   } 
 
-  void *restrict const new_values = map->values = ms_malloc(
+  void *const new_values = map->values = ms_malloc(
     &map->allocator,
     new_capacity * map->value_size,
 		MS_DEFAULT_ALIGNMENT
@@ -208,9 +208,9 @@ ms_result ms_map_resize(
 } 
 
 ms_result ms_map_set(
-  ms_map *restrict const map, 
-  void const *restrict const key, 
-  void const *restrict const value
+  ms_map *const map, 
+  void const *const key, 
+  void const *const value
 ) { 
   MS_ASSERT(map); 
   MS_ASSERT(key); 
@@ -223,8 +223,8 @@ ms_result ms_map_set(
   } 
 
   if(index != UINT32_MAX) { 
-    void *restrict const dest_key = MS_MAP_GET_KEY(map, index);
-    void *restrict const dest_value = MS_MAP_GET_VALUE(map, index);
+    void *const dest_key = MS_MAP_GET_KEY(map, index);
+    void *const dest_value = MS_MAP_GET_VALUE(map, index);
 
     memcpy(dest_key, key, map->key_size);
     memcpy(dest_value, value, map->value_size);
@@ -249,13 +249,13 @@ ms_result ms_map_set(
 } 
 
 bool ms_map_remove(
-  ms_map const *restrict const map, 
-  void const *restrict const key
+  ms_map const *const map, 
+  void const *const key
 ) { 
   uint32_t const index = ms_map_get_index(map, key); 
 
   if(index != UINT32_MAX) { 
-    void *restrict const key = MS_MAP_GET_KEY(map, index);
+    void *const key = MS_MAP_GET_KEY(map, index);
     map->set_key_none(key);
 
     return true; 

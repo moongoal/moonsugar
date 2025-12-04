@@ -1,6 +1,6 @@
-#include <moonsugar/assert.h>
-#include <moonsugar/containers.h>
 #include <string.h>
+#include <moonsugar/assert.h>
+#include <moonsugar/containers/paged-vector.h>
 
 ms_result ms_pvector_construct(
   ms_pvector *const this,

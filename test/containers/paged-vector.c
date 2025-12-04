@@ -1,5 +1,5 @@
 #include <moonsugar/test.h>
-#include <moonsugar/containers.h>
+#include <moonsugar/containers/paged-vector.h>
 
 #define PAGE_CAPACITY (256u)
 #define ITEM_SIZE (sizeof(int))
