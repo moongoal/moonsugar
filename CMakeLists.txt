@@ -6,6 +6,7 @@ project(
 )
 
 option(ENABLE_COMPRESS "Enable the compression module" ON)
+option(ENABLE_HASH "Enable the hash module" ON)
 
 include(CPack)
 include(scripts/target.cmake)
@@ -17,9 +18,15 @@ find_package(moondance CONFIG)
 
 if(ENABLE_COMPRESS)
   find_package(ZLIB REQUIRED)
+else()
+  message(WARNING "Compression module disabled.")
 endif()
 
-find_package(xxHash CONFIG REQUIRED)
+if(ENABLE_HASH)
+  find_package(xxHash CONFIG REQUIRED)
+else()
+  message(WARNING "Hash module disabled.")
+endif()
 
 add_library(
   moonsugar
@@ -29,7 +36,6 @@ add_library(
   src/uri.c
   src/config.c
   src/functional.c
-  src/hash.c
   src/platform/sys/sys.c
   src/log/log.c
   src/log/console.c
@@ -40,7 +46,10 @@ add_library(
   src/memory/arena.c
   src/containers/bitset.c
   src/containers/paged-vector.c
-  src/containers/map.c
+
+  $<$<BOOL:${ENABLE_HASH}>:src/containers/map.c>
+  $<$<BOOL:${ENABLE_HASH}>:src/hash.c>
+
   $<$<BOOL:${ENABLE_COMPRESS}>:src/compress.c>
 )
 
@@ -54,11 +63,13 @@ target_include_directories(
 
 target_compile_definitions(moonsugar PRIVATE MSLIB)
 
-target_link_libraries(
-  moonsugar
-  PRIVATE 
-  xxHash::xxhash
-)
+if(ENABLE_HASH)
+  target_link_libraries(
+    moonsugar
+    PRIVATE 
+    xxHash::xxhash
+  )
+endif()
 
 if(ENABLE_COMPRESS)
   target_link_libraries(
@@ -90,11 +101,15 @@ target_sources(
     include/moonsugar/memory.h
     include/moonsugar/uri.h
     include/moonsugar/config.h
-    include/moonsugar/containers.h
     include/moonsugar/functional.h
+    include/moonsugar/containers/bitset.h
+    include/moonsugar/containers/paged-vector.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/moonsugar/version.h
+
     $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/compress.h>
-    $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/hash.h>
+
+    $<$<BOOL:${ENABLE_HASH}>:include/moonsugar/hash.h>
+    $<$<BOOL:${ENABLE_HASH}>:include/moonsugar/containers/map.h>
 )
 
 if(WIN32)
@@ -154,7 +169,10 @@ else()
 
   ms_add_test(test-containers-bitset test/containers/bitset.c)
   ms_add_test(test-containers-paged-vector test/containers/paged-vector.c)
-  ms_add_test(test-containers-map test/containers/map.c)
+
+  if(ENABLE_HASH)
+    ms_add_test(test-containers-map test/containers/map.c)
+  endif()
 
   if(ENABLE_COMPRESS)
     ms_add_test(test-compress test/compress.c)
