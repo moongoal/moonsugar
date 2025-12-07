@@ -44,7 +44,7 @@ add_library(
   src/memory/stack.c
   src/memory/freelist.c
   src/memory/arena.c
-  src/containers/bitset.c
+  src/containers/bit-array.c
   src/containers/ring.c
   src/containers/paged-vector.c
 
@@ -103,7 +103,7 @@ target_sources(
     include/moonsugar/uri.h
     include/moonsugar/config.h
     include/moonsugar/functional.h
-    include/moonsugar/containers/bitset.h
+    include/moonsugar/containers/bit-array.h
     include/moonsugar/containers/ring.h
     include/moonsugar/containers/paged-vector.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/moonsugar/version.h
@@ -169,7 +169,7 @@ else()
   ms_add_test(test-memory-heap test/memory/heap.c)
   ms_add_test(test-memory-arena test/memory/arena.c)
 
-  ms_add_test(test-containers-bitset test/containers/bitset.c)
+  ms_add_test(test-containers-barray test/containers/bit-array.c)
   ms_add_test(test-containers-paged-vector test/containers/paged-vector.c)
   ms_add_test(test-ring test/containers/ring.c)
 
