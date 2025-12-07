@@ -2,8 +2,6 @@
 #include <moonsugar/assert.h>
 #include <moonsugar/containers/pool.h>
 
-#define POOL_SIZE (16u)
-
 static ms_pool pool;
 
 static void suite_setup(md_suite *suite) { ((void)suite); MST_MEMORY_INIT(); }
