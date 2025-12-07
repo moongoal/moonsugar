@@ -1,18 +1,18 @@
 #include <moonsugar/test.h>
-#include <moonsugar/containers/paged-vector.h>
+#include <moonsugar/containers/paged-array.h>
 
 #define PAGE_CAPACITY (256u)
 #define ITEM_SIZE (sizeof(int))
 
-ms_pvector vec;
+ms_parray vec;
 
 void suite_setup(md_suite * suite) { ((void)suite); MST_MEMORY_INIT(); }
 void suite_cleanup(md_suite * suite) { ((void)suite); MST_MEMORY_DESTROY(); }
 
-void each_cleanup(void *ctx) { ((void)ctx); ms_pvector_destroy(&vec); }
+void each_cleanup(void *ctx) { ((void)ctx); ms_parray_destroy(&vec); }
 
 MD_CASE(construct) {
-  ms_result const result = ms_pvector_construct(&vec, &(ms_pvector_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
+  ms_result const result = ms_parray_construct(&vec, &(ms_parray_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
 
   md_assert(result == MS_RESULT_SUCCESS);
   md_assert(vec.first == NULL);
@@ -23,23 +23,23 @@ MD_CASE(construct) {
 }
 
 MD_CASE(construct__zero_page_capacity) {
-  ms_result const result = ms_pvector_construct(&vec, &(ms_pvector_description){0, ITEM_SIZE, g_allocator});
+  ms_result const result = ms_parray_construct(&vec, &(ms_parray_description){0, ITEM_SIZE, g_allocator});
   md_assert(result == MS_RESULT_INVALID_ARGUMENT);
 }
 
 MD_CASE(construct__zero_item_size) {
-  ms_result const result = ms_pvector_construct(&vec, &(ms_pvector_description){PAGE_CAPACITY, 0, g_allocator});
+  ms_result const result = ms_parray_construct(&vec, &(ms_parray_description){PAGE_CAPACITY, 0, g_allocator});
   md_assert(result == MS_RESULT_INVALID_ARGUMENT);
 }
 
 MD_CASE(construct__null_description) {
-  ms_result const result = ms_pvector_construct(&vec, NULL);
+  ms_result const result = ms_parray_construct(&vec, NULL);
   md_assert(result == MS_RESULT_INVALID_ARGUMENT);
 }
 
 MD_CASE(append_page) {
-  ms_pvector_construct(&vec, &(ms_pvector_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
-  ms_result const app1_result = ms_pvector_append_page(&vec);
+  ms_parray_construct(&vec, &(ms_parray_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
+  ms_result const app1_result = ms_parray_append_page(&vec);
 
   md_assert(app1_result == MS_RESULT_SUCCESS);
   md_assert(vec.first != NULL);
@@ -49,7 +49,7 @@ MD_CASE(append_page) {
   md_assert(vec.first->count == 0);
   md_assert(vec.first->next == NULL);
 
-  ms_result const app2_result = ms_pvector_append_page(&vec);
+  ms_result const app2_result = ms_parray_append_page(&vec);
 
   md_assert(app2_result == MS_RESULT_SUCCESS);
   md_assert(vec.first != vec.last);
@@ -58,36 +58,36 @@ MD_CASE(append_page) {
 }
 
 MD_CASE(page_size_macros) {
-  ms_pvector_construct(&vec, &(ms_pvector_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
+  ms_parray_construct(&vec, &(ms_parray_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
 
   md_assert(
     MS_PVECTOR_PAGE_SIZE_STATIC(int, PAGE_CAPACITY)
-    == sizeof(ms_pvector_page) + ITEM_SIZE * PAGE_CAPACITY
+    == sizeof(ms_parray_page) + ITEM_SIZE * PAGE_CAPACITY
   );
 
-  md_assert(MS_PVECTOR_PAGE_SIZE(&vec) == sizeof(ms_pvector_page) + ITEM_SIZE * PAGE_CAPACITY);
+  md_assert(MS_PVECTOR_PAGE_SIZE(&vec) == sizeof(ms_parray_page) + ITEM_SIZE * PAGE_CAPACITY);
 }
 
 MD_CASE(get_ptr__out_of_bounds) {
-  ms_pvector_construct(&vec, &(ms_pvector_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
-  ms_pvector_append_page(&vec);
+  ms_parray_construct(&vec, &(ms_parray_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
+  ms_parray_append_page(&vec);
 
-  void *out_ptr = ms_pvector_get_ptr(&vec, 1);
+  void *out_ptr = ms_parray_get_ptr(&vec, 1);
   md_assert(out_ptr == NULL);
 }
 
 MD_CASE(get__append) {
   ms_result append_result;
 
-  ms_pvector_construct(&vec, &(ms_pvector_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
-  ms_pvector_append_page(&vec);
+  ms_parray_construct(&vec, &(ms_parray_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
+  ms_parray_append_page(&vec);
 
   for(int i = 0; i < (int)PAGE_CAPACITY; ++i) {
-    append_result = ms_pvector_append(&vec, &i);
+    append_result = ms_parray_append(&vec, &i);
     md_assert(append_result == MS_RESULT_SUCCESS);
   }
 
-  append_result = ms_pvector_append(&vec, &(int){5});
+  append_result = ms_parray_append(&vec, &(int){5});
   md_assert(append_result == MS_RESULT_SUCCESS);
   md_assert(vec.last->count == 1);
 
@@ -95,13 +95,13 @@ MD_CASE(get__append) {
   ms_result get_result;
 
   for(int i = 0; i < (int)PAGE_CAPACITY; ++i) {
-    get_result = ms_pvector_get_value(&vec, i, &out_value);
+    get_result = ms_parray_get_value(&vec, i, &out_value);
 
     md_assert(get_result == MS_RESULT_SUCCESS);
     md_assert(out_value == i);
   }
 
-  get_result = ms_pvector_get_value(&vec, PAGE_CAPACITY, &out_value);
+  get_result = ms_parray_get_value(&vec, PAGE_CAPACITY, &out_value);
 
   md_assert(get_result == MS_RESULT_SUCCESS);
   md_assert(out_value == 5);
@@ -110,20 +110,20 @@ MD_CASE(get__append) {
 MD_CASE(set) {
   ms_result append_result;
 
-  ms_pvector_construct(&vec, &(ms_pvector_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
-  ms_pvector_append_page(&vec);
+  ms_parray_construct(&vec, &(ms_parray_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
+  ms_parray_append_page(&vec);
 
   for(int i = 0; i < (int)PAGE_CAPACITY; ++i) {
-    append_result = ms_pvector_append(&vec, &i);
+    append_result = ms_parray_append(&vec, &i);
 
     md_assert(append_result == MS_RESULT_SUCCESS);
   }
 
-  append_result = ms_pvector_set(&vec, 1, &(int){999});
+  append_result = ms_parray_set(&vec, 1, &(int){999});
 
   for(int i = 0; i < (int)PAGE_CAPACITY; ++i) {
     int out_value;
-    ms_result const get_result = ms_pvector_get_value(&vec, i, &out_value);
+    ms_result const get_result = ms_parray_get_value(&vec, i, &out_value);
 
     md_assert(get_result == MS_RESULT_SUCCESS);
 
@@ -136,24 +136,24 @@ MD_CASE(set) {
 }
 
 MD_CASE(set__out_of_bounds) {
-  ms_pvector_construct(&vec, &(ms_pvector_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
-  ms_pvector_append_page(&vec);
+  ms_parray_construct(&vec, &(ms_parray_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
+  ms_parray_append_page(&vec);
 
-  ms_result const get_result = ms_pvector_set(&vec, 1, &(int){5});
+  ms_result const get_result = ms_parray_set(&vec, 1, &(int){5});
 
   md_assert(get_result == MS_RESULT_INVALID_ARGUMENT);
 }
 
 MD_CASE(for_each_page_macro) {
-  ms_pvector_construct(&vec, &(ms_pvector_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
-  ms_pvector_append_page(&vec);
+  ms_parray_construct(&vec, &(ms_parray_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
+  ms_parray_append_page(&vec);
 
   MS_PVECTOR_FOREACH_PAGE(&vec, md_assert(page == vec.first));
 }
 
 MD_CASE(for_each_macro) {
-  ms_pvector_construct(&vec, &(ms_pvector_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
-  ms_pvector_append_page(&vec);
+  ms_parray_construct(&vec, &(ms_parray_description){PAGE_CAPACITY, ITEM_SIZE, g_allocator});
+  ms_parray_append_page(&vec);
 
   vec.first->count = 3;
   int *prev_item = NULL;

@@ -46,7 +46,7 @@ add_library(
   src/memory/arena.c
   src/containers/bit-array.c
   src/containers/ring.c
-  src/containers/paged-vector.c
+  src/containers/paged-array.c
 
   $<$<BOOL:${ENABLE_HASH}>:src/containers/map.c>
   $<$<BOOL:${ENABLE_HASH}>:src/hash.c>
@@ -105,7 +105,7 @@ target_sources(
     include/moonsugar/functional.h
     include/moonsugar/containers/bit-array.h
     include/moonsugar/containers/ring.h
-    include/moonsugar/containers/paged-vector.h
+    include/moonsugar/containers/paged-array.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/moonsugar/version.h
 
     $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/compress.h>
@@ -169,8 +169,8 @@ else()
   ms_add_test(test-memory-heap test/memory/heap.c)
   ms_add_test(test-memory-arena test/memory/arena.c)
 
-  ms_add_test(test-containers-barray test/containers/bit-array.c)
-  ms_add_test(test-containers-paged-vector test/containers/paged-vector.c)
+  ms_add_test(test-containers-bit-array test/containers/bit-array.c)
+  ms_add_test(test-containers-paged-array test/containers/paged-array.c)
   ms_add_test(test-ring test/containers/ring.c)
 
   if(ENABLE_HASH)
