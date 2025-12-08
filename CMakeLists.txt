@@ -48,6 +48,7 @@ add_library(
   src/containers/ring.c
   src/containers/pool.c
   src/containers/paged-array.c
+  src/containers/sparse-paged-array.c
 
   $<$<BOOL:${ENABLE_HASH}>:src/containers/map.c>
   $<$<BOOL:${ENABLE_HASH}>:src/hash.c>
@@ -108,6 +109,7 @@ target_sources(
     include/moonsugar/containers/ring.h
     include/moonsugar/containers/pool.h
     include/moonsugar/containers/paged-array.h
+    include/moonsugar/containers/sparse-paged-array.h
     ${CMAKE_CURRENT_BINARY_DIR}/include/moonsugar/version.h
 
     $<$<BOOL:${ENABLE_COMPRESS}>:include/moonsugar/compress.h>
@@ -173,6 +175,7 @@ else()
 
   ms_add_test(test-containers-bit-array test/containers/bit-array.c)
   ms_add_test(test-containers-paged-array test/containers/paged-array.c)
+  ms_add_test(test-containers-sparse-paged-array test/containers/sparse-paged-array.c)
   ms_add_test(test-containers-ring test/containers/ring.c)
   ms_add_test(test-containers-pool test/containers/pool.c)
 
