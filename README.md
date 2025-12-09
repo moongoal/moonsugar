@@ -17,6 +17,7 @@ Moonsugar is a library of core functionality written in C99.
 |Containers|Structured data containers|🧪 Unstable|
 |Hash|Data hashing functions|🧪 Unstable|
 |Handle|Handle interface|🧪 Unstable|
+|File|File IO|🧪 Unstable|
 
 ## Development
 

@@ -73,7 +73,37 @@ typedef enum {
   /**
    * The container is empty.
    */
-	MS_RESULT_EMPTY
+	MS_RESULT_EMPTY,
+
+  /**
+   * No more resources of this type available.
+   */
+  MS_RESULT_RESOURCE_LIMIT,
+
+  /**
+   * Resource access denied.
+   */
+  MS_RESULT_ACCESS,
+
+  /**
+   * Resource not found.
+   */
+  MS_RESULT_NOT_FOUND,
+
+  /**
+   * End of file reached.
+   */
+  MS_RESULT_EOF,
+
+  /**
+   * The task is scheduled.
+   */
+  MS_RESULT_SCHEDULED,
+
+  /**
+   * The requested operation is not supported.
+   */
+  MS_RESULT_UNSUPPORTED
 } ms_result;
 
 typedef enum {

@@ -35,6 +35,7 @@ add_library(
   src/memory/interface.c
   src/uri.c
   src/config.c
+  src/file/file.c
   src/functional.c
   src/platform/sys/sys.c
   src/log/log.c
@@ -105,6 +106,7 @@ target_sources(
     include/moonsugar/uri.h
     include/moonsugar/config.h
     include/moonsugar/functional.h
+    include/moonsugar/file.h
     include/moonsugar/containers/bit-array.h
     include/moonsugar/containers/ring.h
     include/moonsugar/containers/pool.h
@@ -124,12 +126,14 @@ if(WIN32)
     PRIVATE 
       src/platform/memory/os.win32.c
       src/platform/sys/sys.win32.c
+      src/file/win32.c
   )
 elseif(UNIX)
   target_sources(
     moonsugar
     PRIVATE 
       src/platform/memory/os.unix.c
+      src/file/unix.c
   )
 endif()
 
