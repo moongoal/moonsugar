@@ -37,7 +37,7 @@ add_library(
   src/config.c
   src/file/file.c
   src/functional.c
-  src/platform/sys/sys.c
+  src/sys/sys.c
   src/log/log.c
   src/log/console.c
   src/log/file.c
@@ -98,7 +98,6 @@ target_sources(
     include/moonsugar/api.h
     include/moonsugar/assert.h
     include/moonsugar/log.h
-    include/moonsugar/platform.h
     include/moonsugar/util.h
     include/moonsugar/coroutine.h
     include/moonsugar/path.h
@@ -124,15 +123,15 @@ if(WIN32)
   target_sources(
     moonsugar
     PRIVATE 
-      src/platform/memory/os.win32.c
-      src/platform/sys/sys.win32.c
+      src/memory/os.win32.c
+      src/sys/sys.win32.c
       src/file/win32.c
   )
 elseif(UNIX)
   target_sources(
     moonsugar
     PRIVATE 
-      src/platform/memory/os.unix.c
+      src/memory/os.unix.c
       src/file/unix.c
   )
 endif()
@@ -141,7 +140,7 @@ if(APPLE)
   target_sources(
     moonsugar
     PRIVATE
-      src/platform/sys/sys.osx.c
+      src/sys/sys.osx.c
   )
 endif()
 
@@ -149,13 +148,13 @@ if(CMAKE_SYSTEM_PROCESSOR STREQUAL "AMD64")
   target_sources(
     moonsugar
     PRIVATE
-      src/platform/sys/sys.x86.c
+      src/sys/sys.x86.c
   )
 elseif(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
   target_sources(
     moonsugar
     PRIVATE
-      src/platform/sys/sys.arm.c
+      src/sys/sys.arm.c
   )
 endif()
 

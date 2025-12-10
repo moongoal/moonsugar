@@ -1,5 +1,5 @@
 #include <moondance/test.h>
-#include <moonsugar/platform.h>
+#include <moonsugar/memory.h>
 
 MD_CASE(reserve) {
   void *const ptr = ms_reserve(1024);

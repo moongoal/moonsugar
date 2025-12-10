@@ -1,6 +1,6 @@
 #include <moonsugar/log.h>
 #include <moonsugar/util.h>
-#include <moonsugar/platform.h>
+#include <moonsugar/sys.h>
 
 #define CPUID_FEATURE_SSE3_BIT (1llu << 0)
 #define CPUID_FEATURE_SSSE3_BIT (1llu << 9)

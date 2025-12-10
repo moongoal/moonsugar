@@ -2,8 +2,8 @@
 #include <moonsugar/assert.h>
 #include <moonsugar/log.h>
 #include <moonsugar/util.h>
-#include <moonsugar/platform.h>
 #include <moonsugar/memory.h>
+#include <moonsugar/sys.h>
 
 // End pointer of mallocd memory
 #define HEAP_COMMITTED_END(heap) ((void *)((uint8_t *)(heap->base) + (heap)->committed_size))

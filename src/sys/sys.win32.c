@@ -1,7 +1,7 @@
 #include <Windows.h>
 #include <moonsugar/path.h>
 #include <moonsugar/util.h>
-#include <moonsugar/platform.h>
+#include <moonsugar/sys.h>
 
 void ms_sys_update_with_os(ms_sys_info *const result) {
   SYSTEM_INFO sys_info;

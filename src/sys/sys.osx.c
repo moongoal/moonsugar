@@ -1,6 +1,6 @@
 #include <sys/types.h>
 #include <sys/sysctl.h>
-#include <moonsugar/platform.h>
+#include <moonsugar/sys.h>
 
 void ms_sys_update_with_os(ms_sys_info *const result) {
   int64_t cache_line_size = 0;

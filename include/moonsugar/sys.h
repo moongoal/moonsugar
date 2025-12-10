@@ -1,26 +1,12 @@
 /**
  * @file
  *
- * Platform layer.
+ * System information querying.
  */
-#ifndef MS_PLATFORM_H
-#define MS_PLATFORM_H
+#ifndef MS_SYS_H
+#define MS_SYS_H
 
 #include <moonsugar/api.h>
-
-#define ms_break() __builtin_trap()
-
-#if defined(__x86_64__)
-    #include <emmintrin.h>
-
-    #define ms_pause() _mm_pause()
-    #define MS_CACHE_LINE_SIZE (64u)
-#elif defined(__arm64__)
-    #define ms_pause() __asm__("yield" :::)
-    #define MS_CACHE_LINE_SIZE (128u)
-#else
-    #error Unsupported platform.
-#endif
 
 #define MS_CPU_FEATURE_RSVD0_BIT (1ULL << 4) // Internal - do not use
 #define MS_CPU_FEATURE_POPCNT_BIT (1ULL << 8)
@@ -110,41 +96,4 @@ extern void ms_sys_update_with_cpuid(ms_sys_info *restrict const result);
 extern void ms_sys_update_with_os(ms_sys_info *restrict const result);
 #endif // MSLIB
 
-/**
- * Release a previously reserved chunk of memory.
- * After this function returns, accessing the memory of `ptr`
- * is undefined behaviour.
- *
- * @param ptr The reserved pointer as returned by `ms_reserve()`.
- * @param count The size of the memory to release as passed to `ms_reserve()`.
- */
-MSAPI void ms_release(void * const ptr, const size_t count);
-
-/**
- * Reserve some memory without committing it.
- *
- * @param count The number of bytes to reserve.
- *
- * @return A pointer to the reserved chunk or NULL on failure.
- */
-MSUSERET MSAPI MSMALLOC void* ms_reserve(const size_t count);
-
-/**
- * Commit a reserved chunk of memory.
- *
- * @param ptr The pointer to the chunk of reserved memory t o commit.
- * @param count The number of bytes to commit.
- *
- * @return True on success, false on failure.
- */
-MSAPI bool ms_commit(void * const ptr, const size_t count);
-
-/**
- * De-commit a previously committed chunk of memory.
- *
- * @param ptr The pointer to the chunk of committed memory to de-commit.
- * @param count The number of bytes to de-commit.
- */
-MSAPI void ms_decommit(void * const ptr, const size_t count);
-
-#endif // MS_PLATFORM_H
+#endif // MS_SYS_H

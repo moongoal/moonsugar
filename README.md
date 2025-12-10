@@ -12,7 +12,7 @@ Moonsugar is a library of core functionality written in C99.
 |Memory|Memory allocation|🧪 Unstable|
 |URI|Uniform Resource Identifier|🧪 Unstable|
 |Config|Text-based configuration|🧪 Unstable|
-|Platform|Platform layer|🧪 Unstable|
+|Sys|System information queries|🧪 Unstable|
 |Log|Logging|🧪 Unstable|
 |Containers|Structured data containers|🧪 Unstable|
 |Hash|Data hashing functions|🧪 Unstable|

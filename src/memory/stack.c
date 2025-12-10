@@ -1,7 +1,6 @@
 #include <memory.h>
 #include <moonsugar/assert.h>
 #include <moonsugar/util.h>
-#include <moonsugar/platform.h>
 #include <moonsugar/log.h>
 #include <moonsugar/memory.h>
 

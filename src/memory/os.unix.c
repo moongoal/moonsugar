@@ -1,5 +1,5 @@
 #include <sys/mman.h>
-#include <moonsugar/platform.h>
+#include <moonsugar/memory.h>
 #include <moonsugar/util.h>
 #include <moonsugar/assert.h>
 

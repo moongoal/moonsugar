@@ -1,5 +1,5 @@
 #include <Windows.h>
-#include <moonsugar/platform.h>
+#include <moonsugar/memory.h>
 
 void* ms_reserve(const size_t count) {
     return VirtualAlloc(

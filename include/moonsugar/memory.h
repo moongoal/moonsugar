@@ -505,4 +505,41 @@ MSAPI MSUSERET void * ms_arena_realloc(ms_arena *const arena, void *const ptr, s
  */
 MSAPI void ms_arena_free(ms_arena *const arena, void *const ptr);
 
+/**
+ * Release a previously reserved chunk of memory.
+ * After this function returns, accessing the memory of `ptr`
+ * is undefined behaviour.
+ *
+ * @param ptr The reserved pointer as returned by `ms_reserve()`.
+ * @param count The size of the memory to release as passed to `ms_reserve()`.
+ */
+MSAPI void ms_release(void * const ptr, const size_t count);
+
+/**
+ * Reserve some memory without committing it.
+ *
+ * @param count The number of bytes to reserve.
+ *
+ * @return A pointer to the reserved chunk or NULL on failure.
+ */
+MSUSERET MSAPI MSMALLOC void* ms_reserve(const size_t count);
+
+/**
+ * Commit a reserved chunk of memory.
+ *
+ * @param ptr The pointer to the chunk of reserved memory t o commit.
+ * @param count The number of bytes to commit.
+ *
+ * @return True on success, false on failure.
+ */
+MSAPI bool ms_commit(void * const ptr, const size_t count);
+
+/**
+ * De-commit a previously committed chunk of memory.
+ *
+ * @param ptr The pointer to the chunk of committed memory to de-commit.
+ * @param count The number of bytes to de-commit.
+ */
+MSAPI void ms_decommit(void * const ptr, const size_t count);
+
 #endif // MS_MEMORY_H

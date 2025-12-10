@@ -2,7 +2,6 @@
 #include <moonsugar/assert.h>
 #include <moonsugar/log.h>
 #include <moonsugar/util.h>
-#include <moonsugar/platform.h>
 #include <moonsugar/memory.h>
 
 #ifndef _WIN32

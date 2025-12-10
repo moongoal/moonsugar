@@ -187,4 +187,18 @@ typedef uint32_t ms_handle;
  */
 #define MS_HINVALID ((ms_handle)UINT32_MAX)
 
+#define ms_break() __builtin_trap()
+
+#if defined(__x86_64__)
+    #include <emmintrin.h>
+
+    #define ms_pause() _mm_pause()
+    #define MS_CACHE_LINE_SIZE (64u)
+#elif defined(__arm64__)
+    #define ms_pause() __asm__("yield" :::)
+    #define MS_CACHE_LINE_SIZE (128u)
+#else
+    #error Unsupported platform.
+#endif
+
 #endif // MS_API_H

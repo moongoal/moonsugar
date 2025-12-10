@@ -1,4 +1,4 @@
-#include <moonsugar/platform.h>
+#include <moonsugar/sys.h>
 
 static ms_sys_info info;
 
