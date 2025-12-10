@@ -28,7 +28,7 @@ static MSUSERET ms_result convert_error(int error) {
   }
 }
 
-static MSUSERET ms_result convert_errno() {
+static MSUSERET ms_result convert_errno(void) {
   return convert_error(errno);
 }
 
@@ -101,7 +101,7 @@ void ms_backend_close(ms_file * const f) {
   f->hfile = -1;
 }
 
-ms_result ms_backend_read(ms_file * const f, uint32_t size, void * const out) {
+ms_result ms_fread(ms_file * const f, uint32_t size, void * const out) {
   if(ms_test(f->flags, MS_FMODE_ASYNC_BIT)) {
     f->cb.aio_buf = out;
     f->cb.aio_nbytes = size;
@@ -122,7 +122,7 @@ ms_result ms_backend_read(ms_file * const f, uint32_t size, void * const out) {
   return convert_errno();
 }
 
-ms_result ms_backend_write(ms_file * const f, uint32_t size, void const * const buff) {
+ms_result ms_fwrite(ms_file * const f, uint32_t size, void const * const buff) {
   if(ms_test(f->flags, MS_FMODE_ASYNC_BIT)) {
     f->cb.aio_buf = (void*)buff;
     f->cb.aio_nbytes = size;
@@ -143,7 +143,7 @@ ms_result ms_backend_write(ms_file * const f, uint32_t size, void const * const 
   return convert_errno();
 }
 
-ms_result ms_backend_get_async_state(ms_file * const f) {
+ms_result ms_get_async_state(ms_file * const f) {
   int const result = aio_error(&f->cb);
 
   switch(result) {
@@ -158,7 +158,7 @@ ms_result ms_backend_get_async_state(ms_file * const f) {
   }
 }
 
-uint32_t ms_backend_get_last_io_size(ms_file * const f) {
+uint32_t ms_get_last_io_size(ms_file * const f) {
   int const result = aio_return(&f->cb);
 
   f->cb.aio_offset += result;
@@ -166,7 +166,7 @@ uint32_t ms_backend_get_last_io_size(ms_file * const f) {
   return (uint32_t)result;
 }
 
-ms_result ms_backend_seek(ms_file * const f, int64_t const pos, ms_fseek_mode const mode) {
+ms_result ms_seek(ms_file * const f, int64_t const pos, ms_fseek_mode const mode) {
   if(ms_test(f->flags, MS_FMODE_ASYNC_BIT)) {
     switch(mode) {
       case MS_FSEEK_ORIGIN: {
@@ -175,7 +175,7 @@ ms_result ms_backend_seek(ms_file * const f, int64_t const pos, ms_fseek_mode co
 
       case MS_FSEEK_END: {
         uint64_t size;
-        ms_result const result = ms_backend_get_size(f, &size);
+        ms_result const result = ms_get_size(f, &size);
 
         if(result != MS_RESULT_SUCCESS) {
           return result;
@@ -207,7 +207,7 @@ ms_result ms_backend_seek(ms_file * const f, int64_t const pos, ms_fseek_mode co
   return convert_errno();
 }
 
-ms_result ms_backend_get_size(ms_file * const f, uint64_t * const out_size) {
+ms_result ms_get_size(ms_file * const f, uint64_t * const out_size) {
   struct stat s;
   int const result = fstat(f->hfile, &s);
 

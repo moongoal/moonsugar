@@ -4,3 +4,5 @@ dist/
 *~
 
 CMakeUserPresets.json
+project.vim
+tags
