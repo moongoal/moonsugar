@@ -2,6 +2,7 @@
 #include <moonsugar/memory.h>
 #include <moonsugar/util.h>
 #include <moonsugar/assert.h>
+#include <moonsugar/sys.h>
 
 void* ms_reserve(size_t count) {
   count = ms_align_sz(count, ms_get_sys_info()->page_size);
@@ -26,8 +27,11 @@ void ms_release(void * const ptr, size_t count) {
   munmap(ptr, count);
 }
 
-bool ms_commit(void * const ptr, size_t count) {
-  count = ms_align_sz(count, ms_get_sys_info()->page_size);
+bool ms_commit(void * ptr, size_t count) {
+  uint64_t const page_size = ms_get_sys_info()->page_size;
+
+  ptr = ms_align_back_ptr(ptr, page_size);
+  count = ms_align_sz(count, page_size);
 
 #ifdef HAS_REMAP
   // TODO: Implement this correctly - good luck

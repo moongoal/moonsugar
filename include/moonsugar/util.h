@@ -1,14 +1,15 @@
 /**
  * Utilities.
  */
-#ifndef MS_INTEGER_H
-#define MS_INTEGER_H
+#ifndef MS_UTIL_H
+#define MS_UTIL_H
 
 #include <moonsugar/api.h>
 
 #define MS_IS_POWER2_STATIC(n) ((n) > 0) & ((((n) & ((n) - 1)) == 0) != 0)
 #define MS_IS_MULTIPLE_STATIC(a, b) ((a) % (b) == 0)
 #define MS_ALIGN_SZ_STATIC(value, boundary) ((value) + ((-(value)) & ((boundary) - 1)))
+#define MS_ALIGN_BACK_SZ_STATIC(value, boundary) ((value) & ~((boundary) - 1))
 
 /**
  * Test whether a number is a power of two.
@@ -62,6 +63,18 @@ MSINLINE MSUSERET inline static uint64_t ms_align_sz(uint64_t const value, uint6
 }
 
 /**
+ * Align a size backwards to a given boundary.
+ *
+ * @param value The size to align.
+ * @param boundary The alignment boundary; this value must be a power of 2.
+ *
+ * @return The aligned size.
+ */
+MSINLINE MSUSERET inline static uint64_t ms_align_back_sz(uint64_t const value, uint64_t const boundary) {
+  return MS_ALIGN_BACK_SZ_STATIC(value, boundary);
+}
+
+/**
  * Align a pointer to a given boundary.
  *
  * @param value The pointer to align.
@@ -71,6 +84,18 @@ MSINLINE MSUSERET inline static uint64_t ms_align_sz(uint64_t const value, uint6
  */
 MSINLINE MSUSERET inline static void* ms_align_ptr(void* const value, uint64_t const boundary) {
   return (void*)ms_align_sz((uint64_t)value, boundary);
+}
+
+/**
+ * Align a pointer backwards to a given boundary.
+ *
+ * @param value The pointer to align.
+ * @param boundary The alignment boundary; this value must be a power of 2.
+ *
+ * @return The aligned pointer.
+ */
+MSINLINE MSUSERET inline static void* ms_align_back_ptr(void* const value, uint64_t const boundary) {
+  return (void*)ms_align_back_sz((uint64_t)value, boundary);
 }
 
 /**
@@ -184,5 +209,5 @@ MSINLINE MSUSERET inline static int64_t ms_minmax_signed(int64_t vmin, int64_t v
  */
 #define ms_clear(value, mask) ((value) & ~(mask))
 
-#endif // MS_INTEGER_H
+#endif // MS_UTIL_H
 

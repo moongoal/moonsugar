@@ -29,6 +29,18 @@ MD_CASE(align_ptr) {
   md_assert(ms_align_ptr((void*)16, 16) == (void*)16);
 }
 
+MD_CASE(align_back_sz) {
+  md_assert(ms_align_back_sz(10, 16) == 0);
+  md_assert(ms_align_back_sz(17, 16) == 16);
+  md_assert(ms_align_back_sz(16, 16) == 16);
+}
+
+MD_CASE(align_back_ptr) {
+  md_assert(ms_align_back_ptr((void*)10, 16) == (void*)0);
+  md_assert(ms_align_back_ptr((void*)17, 16) == (void*)16);
+  md_assert(ms_align_back_ptr((void*)16, 16) == (void*)16);
+}
+
 MD_CASE(choose) {
   md_assert(ms_choose(1, 2, true) == 1);
   md_assert(ms_choose(1, 2, false) == 2);
@@ -78,6 +90,8 @@ int main(int argc, char** argv) {
   md_add(&suite, is_multiple);
   md_add(&suite, align_sz);
   md_add(&suite, align_ptr);
+  md_add(&suite, align_back_sz);
+  md_add(&suite, align_back_ptr);
   md_add(&suite, choose);
   md_add(&suite, min);
   md_add(&suite, max);
