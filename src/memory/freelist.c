@@ -15,7 +15,7 @@ static uint64_t compute_free_list_node_size(uint64_t const alloc_size, uint32_t 
   return ms_align_sz(alloc_size + sizeof(ms_header) + alignment - 1, alignment);
 }
 
-void ms_free_list_create_node(
+ void ms_free_list_create_node(
   ms_free_list* const list,
   ms_free_list_node *restrict const chunk,
   ms_free_list_node *restrict const prev,
@@ -43,7 +43,7 @@ void ms_free_list_create_node(
   }
 }
 
-static void detach_free_list_node(ms_free_list *restrict const list, ms_free_list_node *restrict const chunk) {
+static void detach_node(ms_free_list *restrict const list, ms_free_list_node *restrict const chunk) {
   MS_ASSERT(chunk);
 
   if(list->first == chunk) {
@@ -59,7 +59,7 @@ static void detach_free_list_node(ms_free_list *restrict const list, ms_free_lis
   }
 }
 
-static ms_free_list_node * find_smallest_free_free_list_node(
+static ms_free_list_node * find_smallest_node(
   ms_free_list *const list,
   size_t const aligned_count
 ) {
@@ -87,7 +87,7 @@ static ms_free_list_node * find_smallest_free_free_list_node(
   return smallest;
 }
 
-static size_t ms_free_list_malloc_node(
+static size_t malloc_node(
   ms_free_list *const list,
   ms_free_list_node *chunk,
   size_t const total_alloc_size
@@ -111,7 +111,7 @@ static size_t ms_free_list_malloc_node(
     new_total_alloc_size = chunk->size;
   }
 
-  detach_free_list_node(list, chunk);
+  detach_node(list, chunk);
   MS_ASSERT(!chunk->next || NODE_END(chunk) <= (void *)chunk->next);
 
   return new_total_alloc_size;
@@ -124,11 +124,11 @@ void *ms_free_list_malloc(
   size_t *restrict const out_total_size
 ) {
   size_t total_size = compute_free_list_node_size(count, alignment);
-  ms_free_list_node *const chunk = find_smallest_free_free_list_node(list, total_size);
+  ms_free_list_node *const chunk = find_smallest_node(list, total_size);
 
   if(chunk) {
     list->on_before_alloc_from_node(list, chunk, total_size, list->user);
-    total_size = ms_free_list_malloc_node(list, chunk, total_size);
+    total_size = malloc_node(list, chunk, total_size);
   }
 
   *out_total_size = total_size;
@@ -140,7 +140,7 @@ static void coalesce(ms_free_list *restrict const list, ms_free_list_node *const
   MS_ASSERT(left);
   MS_ASSERT(right);
 
-  detach_free_list_node(list, right);
+  detach_node(list, right);
   left->size += right->size;
 }
 
@@ -175,7 +175,7 @@ static ms_free_list_node * try_coalesce_neighbors(ms_free_list *restrict const l
   return chunk;
 }
 
-static ms_free_list_node *find_prev_free_list_node(ms_free_list *restrict const list, ms_free_list_node *const subject) {
+static ms_free_list_node *find_prev_node(ms_free_list *restrict const list, ms_free_list_node *const subject) {
   for(ms_free_list_node *c = list->first; c != NULL; c = c->next) {
     if(c < subject) { // c is a previous chunk
       if(
@@ -196,7 +196,7 @@ void ms_free_list_free(ms_free_list *restrict const list, void * const ptr, size
   ms_free_list_node * node = ptr;
 
   if(list->first) {
-    ms_free_list_node *const prev = find_prev_free_list_node(list, node);
+    ms_free_list_node *const prev = find_prev_node(list, node);
 
     MS_ASSERT(!prev || NODE_END(prev) <= (void *)node);
 
