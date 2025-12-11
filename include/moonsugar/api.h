@@ -214,17 +214,17 @@ typedef uint64_t ms_time;
 /**
  * Converts a timestamp into milliseconds.
  */
-#define ms_time_to_us(t) ((ms_time)(t) / 1'000llu)
+#define ms_time_to_us(t) ((ms_time)(t) / 1000llu)
 
 /**
  * Converts a timestamp into milliseconds.
  */
-#define ms_time_to_ms(t) ((ms_time)(t) / 1'000'000llu)
+#define ms_time_to_ms(t) ((ms_time)(t) / 1000000llu)
 
 /**
  * Create a timestamp from milliseconds.
  */
-#define ms_time_from_ms(t) ((ms_time)(t) * 1'000'000llu)
+#define ms_time_from_ms(t) ((ms_time)(t) * 1000000llu)
 
 /**
  * Create a timestamp from nanoseconds.
