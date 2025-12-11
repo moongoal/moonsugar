@@ -201,4 +201,34 @@ typedef uint32_t ms_handle;
     #error Unsupported platform.
 #endif
 
+/**
+ * Timestamp expressed in nanoseconds.
+ */
+typedef uint64_t ms_time;
+
+/**
+ * Infinitely long time period.
+ */
+#define MS_TIME_INFINITY ((ms_time)UINT64_MAX)
+
+/**
+ * Converts a timestamp into milliseconds.
+ */
+#define ms_time_to_us(t) ((ms_time)(t) / 1'000llu)
+
+/**
+ * Converts a timestamp into milliseconds.
+ */
+#define ms_time_to_ms(t) ((ms_time)(t) / 1'000'000llu)
+
+/**
+ * Create a timestamp from milliseconds.
+ */
+#define ms_time_from_ms(t) ((ms_time)(t) * 1'000'000llu)
+
+/**
+ * Create a timestamp from nanoseconds.
+ */
+#define ms_time_from_ns(t) ((ms_time)(t))
+
 #endif // MS_API_H
