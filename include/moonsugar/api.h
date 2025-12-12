@@ -18,6 +18,8 @@
 #define MSINLINE __attribute__((always_inline))
 #define MSUNREACHABLE __builtin_unreachable()
 
+#define MS_ALIGNED(x) __attribute__((aligned (x)))
+
 #define MSFORMAT(format_index, first_arg) \
   __attribute__((format(printf, format_index, first_arg)))
 

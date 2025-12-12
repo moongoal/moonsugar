@@ -104,5 +104,95 @@ MSAPI void ms_set_current_thread_name(char const * const name);
   void ms_thread_release_start_descriptor(ms_thread_start_descriptor * const d);
 #endif // MSAPI
 
-#endif // MS_THREAD_H
+#ifdef _WIN32
+  #include <Windows.h>
 
+	typedef CRITICAL_SECTION ms_mutex;
+#else
+  #include <pthread.h>
+
+	typedef pthread_mutex_t ms_mutex;
+#endif
+
+/**
+ * Lock the mutex.
+ *
+ * @param m The mutex.
+ */
+MSINLINE inline static void ms_mutex_lock(ms_mutex *const m) {
+#ifdef _WIN32
+  EnterCriticalSection(m);
+#else
+  pthread_mutex_lock(m);
+#endif
+}
+
+/**
+ * Attempt locking the mutex.
+ *
+ * @param m The mutex.
+ *
+ * @return True if the mutex was locked; false if another thread
+ *  already owns the mutex.
+ */
+MSINLINE inline static bool ms_mutex_try_lock(ms_mutex *const m) {
+#ifdef _WIN32
+  return TryEnterCriticalSection(m);
+#else
+  return pthread_mutex_trylock(m) == 0;
+#endif
+}
+
+/**
+ * Unlock the heap, allowing access from other threads.
+ *
+ * @param m The mutex.
+ */
+MSINLINE inline static void ms_mutex_unlock(ms_mutex *const m) {
+#ifdef _WIN32
+  LeaveCriticalSection(m);
+#else
+  pthread_mutex_unlock(m);
+#endif
+}
+
+/**
+ * Construct the mutex.
+ *
+ * @param m The mutex object to construct.
+ */
+#ifdef _WIN32
+	MSINLINE inline static void ms_mutex_construct(ms_mutex *const m) { InitializeCriticalSection(m); }
+#else
+	MSAPI void ms_mutex_construct(ms_mutex *const m);
+#endif
+
+/**
+ * Destroy the mutex.
+ *
+ * @param m The mutex.
+ */
+MSINLINE inline static void ms_mutex_destroy(ms_mutex *const m) {
+#ifdef _WIN32
+  DeleteCriticalSection(m);
+#else
+  pthread_mutex_destroy(m);
+#endif
+}
+
+/**
+ * A lock that spins on wait.
+ */
+typedef struct {
+  /**
+   * Clear when released, set when acquired.
+   */
+  MS_ALIGNED(MS_CACHE_LINE_SIZE) ms_atomic_flag lock;
+} ms_spinlock;
+
+MSAPI void ms_spinlock_construct(ms_spinlock * const lock);
+MSAPI void ms_spinlock_destroy(ms_spinlock * const lock);
+MSAPI void ms_spinlock_lock(ms_spinlock * const lock);
+MSAPI void ms_spinlock_unlock(ms_spinlock * const lock);
+
+#endif // MS_THREAD_H
