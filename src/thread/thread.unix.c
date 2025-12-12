@@ -57,7 +57,7 @@ ms_result ms_thread_spawn(
 
   int const result = pthread_create(
     (pthread_t *)t,
-    &g_ms_backend.thread_attrs,
+    &thread_attrs,
     thread_main,
     descriptor
   );
