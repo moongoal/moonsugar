@@ -34,6 +34,7 @@ add_library(
   src/path.c
   src/memory/interface.c
   src/uri.c
+  src/thread/thread.c
   src/config.c
   src/file/file.c
   src/functional.c
@@ -106,6 +107,7 @@ target_sources(
     include/moonsugar/config.h
     include/moonsugar/functional.h
     include/moonsugar/file.h
+    include/moonsugar/thread.h
     include/moonsugar/containers/bit-array.h
     include/moonsugar/containers/ring.h
     include/moonsugar/containers/pool.h
@@ -126,6 +128,7 @@ if(WIN32)
       src/memory/os.win32.c
       src/sys/sys.win32.c
       src/file/win32.c
+      src/thread/thread.win32.c
   )
 elseif(UNIX)
   target_sources(
@@ -133,6 +136,7 @@ elseif(UNIX)
     PRIVATE 
       src/memory/os.unix.c
       src/file/unix.c
+      src/thread/thread.unix.c
   )
 endif()
 
@@ -171,6 +175,7 @@ else()
   ms_add_test(test-log test/log.c)
   ms_add_test(test-util test/util.c)
   ms_add_test(test-handle test/handle.c)
+  ms_add_test(test-thread test/thread.c)
 
   ms_add_test(test-memory-os test/memory/os.c)
   ms_add_test(test-memory-heap test/memory/heap.c)

@@ -134,6 +134,9 @@ typedef enum {
 #define ms_thread_fence __atomic_thread_fence
 
 #define MS_ATOMIC(x) x
+#define ms_atomic_flag MS_ATOMIC(bool)
+
+#define MS_THREAD_LOCAL __thread
 
 /**
  * The raw handle type.
