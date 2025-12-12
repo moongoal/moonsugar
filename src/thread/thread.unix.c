@@ -1,10 +1,11 @@
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <moonsugar/log.h>
 #include <moonsugar/thread.h>
 #include <moonsugar/util.h>
 
-#define UNNAMED_THREAD_NAME "<Unnamed thread>"
+#define UNKNOWN_THREAD_NAME "<Unnamed thread>"
 
 static bool initialized;
 static pthread_attr_t thread_attrs;
@@ -24,9 +25,9 @@ static void *thread_main(void *const param) {
   // Data copied locally, descriptor no more needed
   ms_atomic_clear(&gdesc->in_use, MS_MEMORY_ORDER_SEQ_CST);
 
-  ms_debugf("Thread %s has started.", cur_thread_name);
+  ms_debugf("Thread %s has started.", ms_get_current_thread_name());
   desc.main(desc.ctx);
-  ms_debugf("Thread %s has terminated.", cur_thread_name);
+  ms_debugf("Thread %s has terminated.", ms_get_current_thread_name());
 
   return NULL;
 }
