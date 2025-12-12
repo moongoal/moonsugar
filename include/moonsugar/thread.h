@@ -195,4 +195,182 @@ MSAPI void ms_spinlock_destroy(ms_spinlock * const lock);
 MSAPI void ms_spinlock_lock(ms_spinlock * const lock);
 MSAPI void ms_spinlock_unlock(ms_spinlock * const lock);
 
+#ifdef _WIN32
+	/*
+	 * A lock that allows multiple reader threads
+	 * to acquire it concurrently, or one writer
+	 * thread to acquire it exclusively.
+	 */
+	typedef SRWLOCK ms_rwlock;
+	
+	/**
+	 * Construct a new rw lock.
+	 *
+	 * @param lock The lock.
+	 */
+	inline MSINLINE void ms_rwlock_construct(ms_rwlock *const lock) {
+	  InitializeSRWLock(lock);
+	}
+	
+	/**
+	 * Lock an rw lock in read mode. Multiple threads can
+	 * succeed acquiring the lock in this mode at the same time.
+	 *
+	 * @param lock The lock.
+	 */
+	inline MSINLINE void ms_rwlock_lock_read(ms_rwlock *const lock) {
+	  AcquireSRWLockShared(lock);
+	}
+	
+	/**
+	 * Lock an rw lock in write mode. Only one thread can
+	 * succeed acquire the lock in this mode at a given time.
+	 *
+	 * @param lock The lock.
+	 */
+	inline MSINLINE void ms_rwlock_lock_write(ms_rwlock *const lock) {
+	  AcquireSRWLockExclusive(lock);
+	}
+	
+	/**
+	 * Try locking an rw lock in read mode. Multiple threads can
+	 * succeed acquiring the lock in this mode at the same time.
+	 *
+	 * @param lock The lock.
+	 *
+	 * @return True if the lock was acquired, false if locking failed.
+	 */
+	inline MSINLINE bool ms_rwlock_try_lock_read(ms_rwlock *const lock) {
+	  return TryAcquireSRWLockShared(lock) == TRUE;
+	}
+	
+	/**
+	 * Try locking an rw lock in write mode. Only one thread can
+	 * succeed acquiring the lock in this mode at any given time.
+	 *
+	 * @param lock The lock.
+	 *
+	 * @return True if the lock was acquired, false if locking failed.
+	 */
+	inline MSINLINE bool ms_rwlock_try_lock_write(ms_rwlock *const lock) {
+	  return TryAcquireSRWLockExclusive(lock) == TRUE;
+	}
+	
+	/**
+	 * Release an rw lock previously acquired in read mode.
+	 *
+	 * @param lock The lock.
+	 */
+	inline MSINLINE void ms_rwlock_unlock_read(ms_rwlock *const lock) {
+	  ReleaseSRWLockShared(lock);
+	}
+	
+	/**
+	 * Release an rw lock previously acquired in write mode.
+	 *
+	 * @param lock The lock.
+	 */
+	inline MSINLINE void ms_rwlock_unlock_write(ms_rwlock *const lock) {
+	  ReleaseSRWLockExclusive(lock);
+	}
+	
+	/**
+	 * Destroy an existing rwlock.
+	 *
+	 * @param lock The lock.
+	 */
+	inline MSINLINE void ms_rwlock_destroy(ms_rwlock *const lock) { ((void)lock); }
+#else // UNIX
+	/*
+	 * A lock that allows multiple reader threads
+	 * to acquire it concurrently, or one writer
+	 * thread to acquire it exclusively.
+	 */
+	typedef pthread_rwlock_t ms_rwlock;
+	
+	/**
+	 * Construct a new rw lock.
+	 *
+	 * @param lock The lock.
+	 */
+  void MSAPI ms_rwlock_construct(ftcc_rwlock *const lock) {
+    pthread_rwlock_init(lock, NULL);
+  }
+  
+	/**
+	 * Lock an rw lock in read mode. Multiple threads can
+	 * succeed acquiring the lock in this mode at the same time.
+	 *
+	 * @param lock The lock.
+	 */
+  void MSAPI ms_rwlock_lock_read(ftcc_rwlock *const lock) {
+    pthread_rwlock_rdlock(lock);
+  }
+  
+	/**
+	 * Lock an rw lock in write mode. Only one thread can
+	 * succeed acquire the lock in this mode at a given time.
+	 *
+	 * @param lock The lock.
+	 */
+  void MSAPI ms_rwlock_lock_write(ftcc_rwlock *const lock) {
+    pthread_rwlock_wrlock(lock);
+  }
+  
+	/**
+	 * Try locking an rw lock in read mode. Multiple threads can
+	 * succeed acquiring the lock in this mode at the same time.
+	 *
+	 * @param lock The lock.
+	 *
+	 * @return True if the lock was acquired, false if locking failed.
+	 */
+  void MSAPI ms_rwlock_try_lock_read(ftcc_rwlock *const lock) {
+    int const result = pthread_rwlock_tryrdlock(lock);
+  
+    return result == 0;
+  }
+  
+	/**
+	 * Try locking an rw lock in write mode. Only one thread can
+	 * succeed acquiring the lock in this mode at any given time.
+	 *
+	 * @param lock The lock.
+	 *
+	 * @return True if the lock was acquired, false if locking failed.
+	 */
+  void MSAPI ms_rwlock_try_lock_write(ftcc_rwlock *const lock) {
+    int const result = pthread_rwlock_trywrlock(lock);
+  
+    return result == 0;
+  }
+  
+	/**
+	 * Release an rw lock previously acquired in read mode.
+	 *
+	 * @param lock The lock.
+	 */
+  void MSAPI ms_rwlock_unlock_read(ftcc_rwlock *const lock) {
+    pthread_rwlock_unlock(lock);
+  }
+  
+	/**
+	 * Release an rw lock previously acquired in write mode.
+	 *
+	 * @param lock The lock.
+	 */
+  void MSAPI ms_rwlock_unlock_write(ftcc_rwlock *const lock) {
+    pthread_rwlock_unlock(lock);
+  }
+  
+	/**
+	 * Destroy an existing rwlock.
+	 *
+	 * @param lock The lock.
+	 */
+  void MSAPI ms_rwlock_destroy(ftcc_rwlock *const lock) {
+    pthread_rwlock_destroy(lock);
+  }
+#endif
+
 #endif // MS_THREAD_H

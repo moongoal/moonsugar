@@ -138,6 +138,7 @@ elseif(UNIX)
       src/memory/os.unix.c
       src/file/unix.c
       src/thread/thread.unix.c
+      src/thread/mutex.unix.c
   )
 endif()
 
