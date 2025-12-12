@@ -1,8 +1,19 @@
+#include <string.h>
 #include <unistd.h>
 #include <moonsugar/log.h>
 #include <moonsugar/thread.h>
+#include <moonsugar/util.h>
 
 #define UNNAMED_THREAD_NAME "<Unnamed thread>"
+
+static bool initialized;
+static pthread_attr_t thread_attrs;
+
+static void init(void) {
+  pthread_attr_init(&thread_attrs);
+
+  initialized = true;
+}
 
 static void *thread_main(void *const param) {
   ms_thread_start_descriptor * const gdesc = param;
@@ -24,6 +35,10 @@ ms_result ms_thread_spawn(
   ms_thread *const t,
   ms_thread_description const * const description
 ) {
+  if(!initialized) {
+    init();
+  }
+
   ms_thread_start_descriptor * const descriptor = ms_thread_acquire_start_descriptor();
 
   descriptor->main = description->main;
@@ -67,6 +82,6 @@ bool ms_thread_join(ms_thread *const t) {
   return result == 0;
 }
 
-void ms_thread_yield() { sched_yield(); }
+void ms_thread_yield(void) { sched_yield(); }
 void ms_thread_sleep(ms_time const count) { usleep(ms_max(1, ms_time_to_us(count))); }
 
