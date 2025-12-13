@@ -81,10 +81,8 @@ ms_ring_construct(ms_ring *const this, ms_ring_description const *const descript
  * Destroy a ring.
  *
  * @param this The ring.
- *
- * @return Always MS_RESULT_SUCCESS.
  */
-MSAPI ms_result ms_ring_destroy(ms_ring *const this);
+MSAPI void ms_ring_destroy(ms_ring *const this);
 
 /**
  * Enqueue an item.

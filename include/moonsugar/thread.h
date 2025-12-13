@@ -5,6 +5,8 @@
 #define MS_THREAD_H
 
 #include <moonsugar/api.h>
+#include <moonsugar/memory.h>
+#include <moonsugar/containers/ring.h>
 
 #ifdef _WIN32
   #include <windows.h>
@@ -12,9 +14,6 @@
   #include <pthread.h>
 #endif
 
-/**
- * Maximum length of a thread name.
- */
 #define MS_THREAD_NAME_MAX_LEN (256u)
 
 typedef void* ms_thread; // Thread handle
@@ -78,5 +77,36 @@ MSAPI bool ms_rwlock_try_lock_read(ms_rwlock *const lock); // Returns true if th
 MSAPI bool ms_rwlock_try_lock_write(ms_rwlock *const lock); // Returns true if the lock becomes acquired
 MSAPI void ms_rwlock_unlock_read(ms_rwlock *const lock);
 MSAPI void ms_rwlock_unlock_write(ms_rwlock *const lock);
+
+typedef void (*ms_task_handler)(void *ctx);
+typedef struct ms_task ms_task;
+
+struct ms_task {
+  ms_task_handler handler; // The task execution routine
+  ms_task *parent; // Parent task - can be NULL. Do not edit after acquire
+  void *ctx; // Handler context value
+  MS_ATOMIC(uint16_t) unsatisfied_dependencies; // Count of unsatisfied dependencies
+};
+
+/**
+ * Task queue. This component is intended to let one or more requestor
+ * threads schedule work to be executed on a set of worker threads.
+ */
+typedef struct {
+  ms_task *store; // Task store
+  ms_rwlock lock; // Access synchronization
+  ms_ring queue; // Task store allocation
+} ms_task_queue;
+
+typedef struct {
+  ms_allocator allocator;
+  uint32_t capacity; // Max number of tasks
+} ms_task_queue_description;
+
+MSAPI ms_result ms_task_queue_construct(ms_task_queue *const q, ms_task_queue_description const * const description);
+MSAPI void ms_task_queue_destroy(ms_task_queue *const q);
+MSAPI bool ms_task_queue_enqueue(ms_task_queue *const q, ms_task *const task); // Returns false if the queue on failure
+MSAPI bool ms_task_queue_enqueue_many(ms_task_queue *const q, unsigned const count, ms_task **const task); // Returns true if all tasks were allocated, false if none was
+MSAPI MSUSERET ms_task *ms_task_queue_dequeue(ms_task_queue *const q); // Returns the task or NULL if none available
 
 #endif // MS_THREAD_H

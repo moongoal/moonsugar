@@ -27,12 +27,10 @@ ms_result ms_ring_construct(ms_ring *const this, ms_ring_description const *cons
   return MS_RESULT_SUCCESS;
 }
 
-ms_result ms_ring_destroy(ms_ring *const this) {
+void ms_ring_destroy(ms_ring *const this) {
   ms_free(&this->allocator, this->values);
 
   this->values = NULL;
-
-  return MS_RESULT_SUCCESS;
 }
 
 void *ms_ring_enqueue(ms_ring *const this) {

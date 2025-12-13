@@ -36,6 +36,7 @@ add_library(
   src/uri.c
   src/thread/thread.c
   src/thread/spinlock.c
+  src/thread/task.c
   src/config.c
   src/file/file.c
   src/functional.c
