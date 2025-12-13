@@ -84,7 +84,7 @@ static void on_before_alloc_from_node(
   commit_free_list_node_memory(heap, node, size);
 }
 
-void ms_heap_construct(ms_heap *const heap, uint64_t const size, uint64_t const page_size) {
+ms_result ms_heap_construct(ms_heap *const heap, uint64_t const size, uint64_t const page_size) {
   MS_ASSERT(ms_is_multiple(size, page_size));
   MS_ASSERT(ms_is_power2(page_size));
 
@@ -92,31 +92,39 @@ void ms_heap_construct(ms_heap *const heap, uint64_t const size, uint64_t const 
 
   if(si->alloc_granularity < MS_DEFAULT_ALIGNMENT) {
     ms_errorf(
-        "Reported OS allocation granularity %llu cannot satisfy minimum engine allocation " "requir" "ement " "%llu",
-        (uint64_t)si->alloc_granularity,
-        (uint64_t)MS_DEFAULT_ALIGNMENT
+      "Reported OS allocation granularity %llu cannot satisfy minimum engine allocation requirement %llu.",
+      (uint64_t)si->alloc_granularity,
+      (uint64_t)MS_DEFAULT_ALIGNMENT
     );
   }
 
   void *const base_ptr = ms_reserve(size);
 
+  if(base_ptr == NULL) {
+    ms_error("Unable to reserve memory.");
+
+    return MS_RESULT_MEMORY;
+  }
+
   *heap = (ms_heap){
-      base_ptr,
-      size,
-      page_size,
-      0, // committed_size
-      (ms_free_list) {
-        NULL,
-        heap,
-        on_before_node_create,
-        on_before_alloc_from_node
-      }
+    base_ptr,
+    size,
+    page_size,
+    0, // committed_size
+    (ms_free_list) {
+      NULL,
+      heap,
+      on_before_node_create,
+      on_before_alloc_from_node
+    }
   };
 
   // Create first chunk
   ms_free_list_node *const chunk = base_ptr;
   commit(heap, chunk, page_size);
   ms_free_list_create_node(&heap->free_list, chunk, NULL, NULL, size);
+
+  return MS_RESULT_SUCCESS;
 }
 
 void ms_heap_destroy(ms_heap *const heap) {

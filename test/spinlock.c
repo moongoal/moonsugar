@@ -30,8 +30,6 @@ MD_CASE(spinlock) {
 
   md_assert(ms_thread_join(&t));
   md_assert(ctx.n == 1);
-
-  ms_spinlock_destroy(&ctx.lock);
 }
 
 int main(int argc, char **argv) {

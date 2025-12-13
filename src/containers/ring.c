@@ -12,12 +12,12 @@ ms_result ms_ring_construct(ms_ring *const this, ms_ring_description const *cons
   }
 
   *this = (ms_ring){
-      0, // count
-      0, // windex
-      description->capacity,
-      description->item_size,
-      ms_malloc(&description->allocator, description->item_size * description->capacity, MS_DEFAULT_ALIGNMENT),
-      description->allocator
+    0, // count
+    0, // windex
+    description->capacity,
+    description->item_size,
+    ms_malloc(&description->allocator, description->item_size * description->capacity, MS_DEFAULT_ALIGNMENT),
+    description->allocator
   };
 
   if(this->values == NULL) {

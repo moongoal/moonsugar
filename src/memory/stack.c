@@ -4,10 +4,15 @@
 #include <moonsugar/log.h>
 #include <moonsugar/memory.h>
 
-void ms_stack_construct(ms_stack * const restrict stack, uint64_t const max_size) {
+ms_result ms_stack_construct(ms_stack * const restrict stack, uint64_t const max_size) {
   MS_ASSERT(stack);
 
   void * const memory = ms_reserve(max_size);
+
+  if(memory == NULL) {
+    ms_error("Unable to reserve memory.");
+    return MS_RESULT_MEMORY;
+  }
 
   *stack = (ms_stack) {
     memory, // base
@@ -15,6 +20,8 @@ void ms_stack_construct(ms_stack * const restrict stack, uint64_t const max_size
     memory, // top
     memory // committed_top
   };
+
+  return MS_RESULT_SUCCESS;
 }
 
 void ms_stack_destroy(ms_stack * const restrict stack) {

@@ -15,11 +15,11 @@ static uint64_t compute_free_list_node_size(uint64_t const alloc_size, uint32_t 
   return ms_align_sz(alloc_size + sizeof(ms_header) + alignment - 1, alignment);
 }
 
- void ms_free_list_create_node(
+void ms_free_list_create_node(
   ms_free_list* const list,
-  ms_free_list_node *restrict const chunk,
-  ms_free_list_node *restrict const prev,
-  ms_free_list_node *restrict const next,
+  ms_free_list_node *const chunk,
+  ms_free_list_node *const prev,
+  ms_free_list_node *const next,
   uint64_t const size
 ) {
   list->on_before_node_create(list, chunk, sizeof(ms_free_list_node), list->user);
@@ -43,7 +43,7 @@ static uint64_t compute_free_list_node_size(uint64_t const alloc_size, uint32_t 
   }
 }
 
-static void detach_node(ms_free_list *restrict const list, ms_free_list_node *restrict const chunk) {
+static void detach_node(ms_free_list *const list, ms_free_list_node *const chunk) {
   MS_ASSERT(chunk);
 
   if(list->first == chunk) {
@@ -118,10 +118,10 @@ static size_t malloc_node(
 }
 
 void *ms_free_list_malloc(
-  ms_free_list *restrict const list,
+  ms_free_list *const list,
   size_t const count,
   uint32_t const alignment,
-  size_t *restrict const out_total_size
+  size_t *const out_total_size
 ) {
   size_t total_size = compute_free_list_node_size(count, alignment);
   ms_free_list_node *const chunk = find_smallest_node(list, total_size);
@@ -136,7 +136,7 @@ void *ms_free_list_malloc(
   return chunk;
 }
 
-static void coalesce(ms_free_list *restrict const list, ms_free_list_node *const left, ms_free_list_node *const right) {
+static void coalesce(ms_free_list *const list, ms_free_list_node *const left, ms_free_list_node *const right) {
   MS_ASSERT(left);
   MS_ASSERT(right);
 
@@ -151,7 +151,7 @@ static void coalesce(ms_free_list *restrict const list, ms_free_list_node *const
  *
  * @return The first chunk of the sequence, after the merge.
  */
-static ms_free_list_node * try_coalesce_neighbors(ms_free_list *restrict const list, ms_free_list_node *const chunk) {
+static ms_free_list_node * try_coalesce_neighbors(ms_free_list *const list, ms_free_list_node *const chunk) {
   MS_ASSERT(chunk);
 
   ms_free_list_node *const prev = chunk->prev;
@@ -175,7 +175,7 @@ static ms_free_list_node * try_coalesce_neighbors(ms_free_list *restrict const l
   return chunk;
 }
 
-static ms_free_list_node *find_prev_node(ms_free_list *restrict const list, ms_free_list_node *const subject) {
+static ms_free_list_node *find_prev_node(ms_free_list *const list, ms_free_list_node *const subject) {
   for(ms_free_list_node *c = list->first; c != NULL; c = c->next) {
     if(c < subject) { // c is a previous chunk
       if(
@@ -192,7 +192,7 @@ static ms_free_list_node *find_prev_node(ms_free_list *restrict const list, ms_f
   return NULL;
 }
 
-void ms_free_list_free(ms_free_list *restrict const list, void * const ptr, size_t const size) {
+void ms_free_list_free(ms_free_list *const list, void * const ptr, size_t const size) {
   ms_free_list_node * node = ptr;
 
   if(list->first) {

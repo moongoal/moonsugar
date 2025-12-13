@@ -7,10 +7,6 @@ void ms_spinlock_construct(ms_spinlock * const lock) {
   *lock = (ms_spinlock) { false };
 }
 
-void ms_spinlock_destroy(ms_spinlock * const lock) {
-  ((void)lock); // NOP
-}
-
 void ms_spinlock_lock(ms_spinlock * const lock) {
   while(ms_atomic_test_and_set(&lock->lock, MS_MEMORY_ORDER_SEQ_CST));
 }

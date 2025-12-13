@@ -199,10 +199,10 @@ struct ms_free_list_node {
  * @return The pointer to the allocated memory or NULL on failure.
  */
 void * MSAPI ms_free_list_malloc(
-  ms_free_list *restrict const list,
+  ms_free_list *const list,
   size_t const count,
   uint32_t const alignment,
-  size_t *restrict const out_allocated_size
+  size_t *const out_allocated_size
 );
 
 /**
@@ -213,7 +213,7 @@ void * MSAPI ms_free_list_malloc(
  * @param size The total amount of memory being deallocated, in bytes.
  */
 void MSAPI ms_free_list_free(
-  ms_free_list *restrict const list,
+  ms_free_list *const list,
   void * const ptr,
   size_t const size
 );
@@ -229,9 +229,9 @@ void MSAPI ms_free_list_free(
  */
 void MSAPI ms_free_list_create_node(
   ms_free_list* const list,
-  ms_free_list_node *restrict const node,
-  ms_free_list_node *restrict const prev,
-  ms_free_list_node *restrict const next,
+  ms_free_list_node *const node,
+  ms_free_list_node *const prev,
+  ms_free_list_node *const next,
   uint64_t const size
 );
 
@@ -277,78 +277,12 @@ typedef struct {
   ms_free_list free_list;
 } ms_heap;
 
-/**
- * Construct a new heap, requesting memory from the OS.
- *
- * @param heap The heap to construct.
- * @param size The heap size.
- * @param page_size The allocation page size.
- *
- * @return The new heap.
- */
-MSAPI void ms_heap_construct(ms_heap *const heap, uint64_t const size, uint64_t const page_size);
-
-/**
- * Destroy an existing heap.
- *
- * @param heap The heap to destroy.
- */
+MSAPI ms_result ms_heap_construct(ms_heap *const heap, uint64_t const size, uint64_t const page_size);
 MSAPI void ms_heap_destroy(ms_heap *const heap);
-/**
- * Allocate memory from the heap.
- *
- * @param heap The heap.
- * @param count The number of bytes to allocate.
- * @param alignment Alignment constraint.
- *
- * @return A pointer to the allocated memory or NULL
- *  on failure.
- */
-MSAPI MSUSERET void * ms_heap_malloc(ms_heap *const heap, size_t const count, size_t const alignment);
-
-/**
- * Re-allocate memory from the heap.
- *
- * @param heap The heap.
- * @param new_count The new number of bytes to allocate.
- *
- * @return A pointer to the re-allocated memory or NULL
- *  on failure. The returned pointer may be the same as
- *  `ptr` if no memory relocation is necessary, `ptr` is returned;
- *  if memory relocation is necessary, the existing data is copied.
- */
+MSAPI MSUSERET void * ms_heap_malloc(ms_heap *const heap, size_t const count, size_t const alignment); // Returns NULL on failure
 MSAPI MSUSERET void * ms_heap_realloc(ms_heap *const heap, void *const ptr, size_t const new_count);
-
-/**
- * De-allocate previously allocaetd memory.
- *
- * @param heap The heap.
- * @param ptr The pointer to the memory to free,
- *  as returned from `allocate()`.
- */
 MSAPI void ms_heap_free(ms_heap *const heap, void *const ptr);
-
-/**
- * Get the allocation header for a given pointer.
- *
- * @param ptr The pointer to get the allocation header for.
- *  The pointer must be as returned from one of the heap
- *  allocation functions. This argument is assumed to never
- *  be NULL.
- *
- * @return A pointer to the header of the allocation.
- */
 MSUSERET MSAPI ms_header *ms_heap_get_header(void *const ptr);
-
-/**
- * Test ownership of a pointer.
- *
- * @param heap The heap.
- * @param ptr The pointer to test for ownership.
- *
- * @return True if the memory referenced by this pointer
- *  was allocated via this heap, false if not.
- */
 MSAPI MSUSERET bool ms_heap_owns(ms_heap *const heap, void *const ptr);
 
 typedef struct {
@@ -373,42 +307,10 @@ typedef struct {
   MS_ATOMIC(uint8_t*) committed_top;
 } ms_stack;
 
-/**
- * Construct a stack allocator.
- *
- * @param stack The allocator.
- * @param max_size Maximum amount of memory allocatable.
- */
-MSAPI void ms_stack_construct(ms_stack * const restrict stack, uint64_t const max_size);
-
-/**
- * Destroy a stack allocator.
- *
- * @param stack The allocator.
- */
-MSAPI void ms_stack_destroy(ms_stack * const restrict stack);
-
-/**
- * Allocate memory from a stack allocator.
- *
- * @param stack The allocator.
- * @param size The size of the allocator, in bytes.
- * @param alignment The alignment boundary
- *
- * @return A pointer to the allocated memory.
- */
-MSAPI void* ms_stack_malloc(
-  ms_stack * const restrict stack,
-  size_t size,
-  size_t const alignment
-);
-
-/**
- * Clear a stack allocator.
- *
- * @param stack The allocator.
- */
-MSAPI void ms_stack_clear(ms_stack * const restrict stack);
+MSAPI ms_result ms_stack_construct(ms_stack * const stack, uint64_t const max_size);
+MSAPI void ms_stack_destroy(ms_stack * const stack);
+MSAPI void* ms_stack_malloc(ms_stack * const stack, size_t size, size_t const alignment);
+MSAPI void ms_stack_clear(ms_stack * const stack); // Reset the stack to empty state
 
 typedef struct ms_arena ms_arena;
 typedef struct ms_arena_node ms_arena_node;

@@ -46,13 +46,14 @@ MSAPI void ms_mutex_unlock(ms_mutex *const m);
 
 /*
  * A lock that spins on wait.
+ *
+ * No destructor is necessary.
  */
 typedef struct {
   MS_ALIGNED(MS_CACHE_LINE_SIZE) ms_atomic_flag lock; // Set when acquired
 } ms_spinlock;
 
 MSAPI void ms_spinlock_construct(ms_spinlock * const lock);
-MSAPI void ms_spinlock_destroy(ms_spinlock * const lock);
 MSAPI void ms_spinlock_lock(ms_spinlock * const lock);
 MSAPI void ms_spinlock_unlock(ms_spinlock * const lock);
 

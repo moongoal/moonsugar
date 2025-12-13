@@ -32,6 +32,8 @@ void ms_parray_destroy(ms_parray *const this) {
   MS_ASSERT(this);
 
   MS_PVECTOR_FOREACH_PAGE(this, ms_free(&this->allocator, page));
+  this->first = this->last = NULL;
+  this->page_count = 0;
 }
 
 ms_result ms_parray_append(ms_parray *const this, void const *const value_ptr) {
