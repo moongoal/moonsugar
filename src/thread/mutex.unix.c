@@ -27,3 +27,19 @@ void ms_mutex_construct(ms_mutex *const m) {
   int const result FTUNUSED = pthread_mutex_init(m, &mutex_attrs);
   FT_ASSERT(result == 0);
 }
+
+void ms_mutex_lock(ms_mutex *const m) {
+  pthread_mutex_lock(m);
+}
+
+bool ms_mutex_try_lock(ms_mutex *const m) {
+  return pthread_mutex_trylock(m) == 0;
+}
+
+void ms_mutex_unlock(ms_mutex *const m) {
+  pthread_mutex_unlock(m);
+}
+
+void ms_mutex_destroy(ms_mutex *const m) {
+  pthread_mutex_destroy(m);
+}

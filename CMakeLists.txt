@@ -130,6 +130,8 @@ if(WIN32)
       src/sys/sys.win32.c
       src/file/win32.c
       src/thread/thread.win32.c
+      src/thread/mutex.win32.c
+      src/thread/rwlock.win32.c
   )
 elseif(UNIX)
   target_sources(
@@ -139,6 +141,7 @@ elseif(UNIX)
       src/file/unix.c
       src/thread/thread.unix.c
       src/thread/mutex.unix.c
+      src/thread/rwlock.unix.c
   )
 endif()
 

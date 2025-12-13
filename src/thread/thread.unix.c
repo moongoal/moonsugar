@@ -2,8 +2,8 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <moonsugar/log.h>
-#include <moonsugar/thread.h>
 #include <moonsugar/util.h>
+#include <moonsugar/thread-internal.h>
 
 #define UNKNOWN_THREAD_NAME "<Unnamed thread>"
 

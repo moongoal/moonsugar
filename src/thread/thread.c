@@ -1,5 +1,5 @@
 #include <string.h>
-#include <moonsugar/thread.h>
+#include <moonsugar/thread-internal.h>
 
 #define MAX_DESCRIPTORS (128u)
 

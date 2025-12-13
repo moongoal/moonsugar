@@ -2,7 +2,7 @@
 #include <Windows.h>
 #include <moonsugar/util.h>
 #include <moonsugar/log.h>
-#include <moonsugar/thread.h>
+#include <moonsugar/thread-internal.h>
 
 #define DEFAULT_STACK_SIZE 0
 #define UNKNOWN_THREAD_NAME "<Unknown Thread>"
