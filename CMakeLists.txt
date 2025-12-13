@@ -124,6 +124,13 @@ target_sources(
 )
 
 if(WIN32)
+  target_compile_definitions(
+    moonsugar
+    PRIVATE
+      NOCOMM
+      WIN32_LEAN_AND_MEAN
+  )
+
   target_sources(
     moonsugar
     PRIVATE 
