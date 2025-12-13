@@ -2,11 +2,11 @@
 #include <moonsugar/assert.h>
 #include <moonsugar/thread.h>
 
-static initialized;
+static bool initialized;
 static pthread_mutexattr_t mutex_attrs;
 
-static void init() {
-  int const result = pthread_mutexattr_init(&g_ftcc_backend.mutex_attrs);
+static void init(void) {
+  int const result = pthread_mutexattr_init(&mutex_attrs);
 
   if(result != 0) {
     ms_fatal("Unable to initialize concurrency backend.");
@@ -24,8 +24,9 @@ void ms_mutex_construct(ms_mutex *const m) {
     init();
   }
 
-  int const result FTUNUSED = pthread_mutex_init(m, &mutex_attrs);
-  FT_ASSERT(result == 0);
+  int const result = pthread_mutex_init(m, &mutex_attrs);
+  ((void)result);
+  MS_ASSERT(result == 0);
 }
 
 void ms_mutex_lock(ms_mutex *const m) {
