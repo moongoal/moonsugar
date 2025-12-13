@@ -122,4 +122,25 @@ MSAPI bool ms_task_queue_enqueue(ms_task_queue *const q, ms_task *const task); /
 MSAPI bool ms_task_queue_enqueue_many(ms_task_queue *const q, unsigned const count, ms_task **const task); // Returns true if all tasks were allocated, false if none was
 MSAPI MSUSERET ms_task *ms_task_queue_dequeue(ms_task_queue *const q); // Returns the task or NULL if none available
 
+/**
+ * A pool of thread to dispatch parallel work.
+ */
+typedef struct {
+  ms_allocator allocator;
+  ms_thread *threads;
+  MS_ATOMIC(bool) must_join; // True if all the threads are requested to join.
+  MS_ALIGNED(MS_CACHE_LINE_SIZE) ms_task_queue tasks;
+  uint32_t thread_count;
+} ms_thread_pool;
+
+typedef struct {
+  ms_allocator allocator;
+  uint32_t thread_count;
+  uint32_t task_capacity; // Max number of tasks scheduled concurrently
+} ms_thread_pool_description;
+
+MSAPI ms_result ms_thread_pool_construct(ms_thread_pool * const pool, ms_thread_pool_description const * const description);
+MSAPI void ms_thread_pool_destroy(ms_thread_pool * const pool);
+MSAPI bool ms_thread_pool_dispatch(ms_thread_pool * const pool, ms_task * const task); // Returns false on failure
+
 #endif // MS_THREAD_H

@@ -37,6 +37,7 @@ add_library(
   src/thread/thread.c
   src/thread/spinlock.c
   src/thread/task.c
+  src/thread/pool.c
   src/config.c
   src/file/file.c
   src/functional.c
@@ -190,6 +191,7 @@ else()
   ms_add_test(test-handle test/handle.c)
   ms_add_test(test-thread test/thread.c)
   ms_add_test(test-spinlock test/spinlock.c)
+  ms_add_test(test-thread-pool test/thread-pool.c)
 
   ms_add_test(test-memory-os test/memory/os.c)
   ms_add_test(test-memory-heap test/memory/heap.c)
