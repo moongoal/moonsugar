@@ -60,14 +60,27 @@ MSAPI void ms_spinlock_unlock(ms_spinlock * const lock);
  * A lock that allows multiple reader threads
  * to acquire it concurrently, or one writer
  * thread to acquire it exclusively.
+ *
+ * On Windows, SRW locks are not fair, so an event is used
+ * to prioritise writers. When a reader wants to acquire the lock,
+ * it'll first check whether a writer is waiting. If so, it will wait
+ * on the event; if not, it will acquire the lock. When a
+ * writer wants to acquire the lock, it will first signal its waiting
+ * status by increasing the counter, acquire the lock and finally
+ * decrease the counter and signal the event when the lock
+ * is released - only the last active writer will signal the event.
  */
 #ifdef _WIN32
-  typedef SRWLOCK ms_rwlock;
+  typedef struct {
+    MS_ATOMIC(int) writers_waiting; // Count of writers waiting acquisition
+    SRWLOCK lock; // Unfair RW lock
+    HANDLE event; // Event to unblock pending readers
+  } ms_rwlock;
 #else
 	typedef pthread_rwlock_t ms_rwlock;
 #endif
 
-MSAPI void ms_rwlock_construct(ms_rwlock *const lock);
+MSAPI ms_result ms_rwlock_construct(ms_rwlock *const lock);
 MSAPI void ms_rwlock_destroy(ms_rwlock *const lock);
 
 MSAPI void ms_rwlock_lock_read(ms_rwlock *const lock);

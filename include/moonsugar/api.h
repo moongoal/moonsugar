@@ -117,7 +117,7 @@ typedef enum {
 } ms_memory_order;
 
 #define ms_atomic_load __atomic_load_n
-#define ms_atomic_store __atomic_store
+#define ms_atomic_store __atomic_store_n
 #define ms_atomic_exchange __atomic_exchange_n
 #define ms_atomic_compare_exchange_weak(ptr, expected, desired, success, failure) __atomic_compare_exchange_n((ptr), (expected), (desired), true, (success), (failure))
 #define ms_atomic_compare_exchange_strong(ptr, expected, desired, success, failure) __atomic_compare_exchange_n((ptr), (expected), (desired), false, (success), (failure))
