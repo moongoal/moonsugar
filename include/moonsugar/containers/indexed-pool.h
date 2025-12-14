@@ -9,8 +9,8 @@
  * memory. This component is primarily intended to generate handles and assist
  * in managing their associated memory.
  */
-#ifndef MS_CONTAINERS_POOL_H
-#define MS_CONTAINERS_POOL_H
+#ifndef MS_CONTAINERS_IPOOL_H
+#define MS_CONTAINERS_IPOOL_H
 
 #include <moonsugar/api.h>
 #include <moonsugar/util.h>
@@ -38,5 +38,5 @@ MSAPI MSUSERET uint32_t ms_ipool_acquire(ms_ipool *const this); // Returns UINT3
 MSAPI ms_result ms_ipool_release(ms_ipool *const this, uint32_t const item); // MS_RESULT_INVALID_ARGUMENT on double-release
 MSAPI ms_result ms_ipool_resize(ms_ipool *const this, uint32_t const new_count); // Count must be a multiple of 64
 
-#endif // MS_CONTAINERS_POOL_H
+#endif // MS_CONTAINERS_IPOOL_H
 
