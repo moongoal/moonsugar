@@ -22,7 +22,7 @@ ms_result ms_task_queue_construct(ms_task_queue *const q, ms_task_queue_descript
       &q->queue,
       &(ms_ring_description){
         description->capacity,
-        sizeof(ms_task *),
+        sizeof(ms_task),
         description->allocator
       }
     )
@@ -44,10 +44,10 @@ bool ms_task_queue_enqueue(ms_task_queue *const q, ms_task *const task) {
 
   ms_rwlock_lock_write(&q->lock);
   {
-    ms_task **const item = ms_ring_enqueue(&q->queue);
+    ms_task *const item = ms_ring_enqueue(&q->queue);
 
     if(item != NULL) {
-      *item = task;
+      *item = *task;
       success = true;
     }
   }
@@ -56,7 +56,7 @@ bool ms_task_queue_enqueue(ms_task_queue *const q, ms_task *const task) {
   return success;
 }
 
-bool ms_task_queue_enqueue_many(ms_task_queue *const q, unsigned const count, ms_task **const tasks) {
+bool ms_task_queue_enqueue_many(ms_task_queue *const q, unsigned const count, ms_task *const tasks) {
   bool success = false;
 
   ms_rwlock_lock_write(&q->lock);
@@ -65,7 +65,7 @@ bool ms_task_queue_enqueue_many(ms_task_queue *const q, unsigned const count, ms
 
     if(success) {
       for(unsigned i = 0; i < count; ++i) {
-        ms_task **const t = ms_ring_enqueue(&q->queue);
+        ms_task *const t = ms_ring_enqueue(&q->queue);
         MS_ASSERT(t != NULL);
 
         *t = tasks[i];
@@ -82,9 +82,9 @@ ms_task *ms_task_queue_dequeue(ms_task_queue *const q) {
 
   ms_rwlock_lock_read(&q->lock);
   {
-    ms_task **const t = ms_ring_dequeue(&q->queue);
+    ms_task *const t = ms_ring_dequeue(&q->queue);
 
-    if(t) { task = *t; }
+    if(t) { task = t; }
   }
   ms_rwlock_unlock_read(&q->lock);
 

@@ -120,7 +120,7 @@ typedef struct {
 MSAPI ms_result ms_task_queue_construct(ms_task_queue *const q, ms_task_queue_description const * const description);
 MSAPI void ms_task_queue_destroy(ms_task_queue *const q);
 MSAPI bool ms_task_queue_enqueue(ms_task_queue *const q, ms_task *const task); // Returns false if the queue on failure
-MSAPI bool ms_task_queue_enqueue_many(ms_task_queue *const q, unsigned const count, ms_task **const task); // Returns true if all tasks were allocated, false if none was
+MSAPI bool ms_task_queue_enqueue_many(ms_task_queue *const q, unsigned const count, ms_task *const tasks); // Returns true if all tasks were allocated, false if none was
 MSAPI MSUSERET ms_task *ms_task_queue_dequeue(ms_task_queue *const q); // Returns the task or NULL if none available
 
 /**
