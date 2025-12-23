@@ -10,3 +10,9 @@ function(ms_add_test name source)
   
   add_test(NAME ${name} COMMAND ${name})
 endfunction()
+
+function(ms_build_test_plugin)
+  add_library(test-plugin SHARED test/plugin/test-plugin.c)
+  target_link_libraries(test-plugin PRIVATE moonsugar)
+  ms_configure_target(test-plugin)
+endfunction()

@@ -19,6 +19,7 @@ Moonsugar is a library of core functionality written in C99.
 |Handle|Handle interface|🧪 Unstable|
 |File|File IO|🧪 Unstable|
 |Thread|Multi-threading framework|🧪 Unstable|
+|Plugin|Dynamic Library based plugin framework|🧪 Unstable|
 
 ## Development
 
@@ -28,9 +29,10 @@ Requirements:
 * Ninja
 * LLVM
 
-Dependencies:
+Optional dependencies:
 
 * Zlib
+* XXHash
 
 ### Building
 

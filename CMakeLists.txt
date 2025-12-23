@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 4.1)
 
 project(
   moonsugar
-  VERSION 0.4.0
+  VERSION 0.5.0
 )
 
 option(ENABLE_COMPRESS "Enable the compression module" ON)
@@ -31,6 +31,7 @@ endif()
 add_library(
   moonsugar
   src/coroutine.c
+  src/plugin.c
   src/path.c
   src/memory/interface.c
   src/uri.c
@@ -185,6 +186,8 @@ if(NOT ${moondance_FOUND})
   message(WARNING "Moondance not found. Tests will be disabled.")
 else()
   enable_testing()
+  ms_build_test_plugin()
+
   ms_add_test(test-coroutine test/coroutine.c)
   ms_add_test(test-path test/path.c)
   ms_add_test(test-uri test/uri.c)
@@ -206,6 +209,8 @@ else()
   ms_add_test(test-containers-ring test/containers/ring.c)
   ms_add_test(test-containers-pool test/containers/pool.c)
   ms_add_test(test-containers-indexed-pool test/containers/indexed-pool.c)
+
+  ms_add_test(test-plugin-plugin test/plugin/plugin.c)
 
   if(ENABLE_HASH)
     ms_add_test(test-containers-map test/containers/map.c)
