@@ -106,6 +106,7 @@ target_sources(
     include/moonsugar/log.h
     include/moonsugar/util.h
     include/moonsugar/coroutine.h
+    include/moonsugar/plugin.h
     include/moonsugar/path.h
     include/moonsugar/memory.h
     include/moonsugar/uri.h
