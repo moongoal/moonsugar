@@ -93,6 +93,6 @@ void ms_logf(ms_log_level level, const char * const file, const char * const for
   }
 }
 
-void ms_set_global(ms_logger * const restrict logger) {
+void ms_logger_set_global(ms_logger * const logger) {
   g_logger_global = logger;
 }

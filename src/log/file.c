@@ -13,7 +13,7 @@ static void log_message(
   fwrite(message, sizeof(char), strlen(message), f);
 }
 
-bool ms_file_construct(ms_logger * const logger, const char * const path) {
+bool ms_logger_file_construct(ms_logger * const logger, const char * const path) {
   FILE * const f = fopen(path, "w");
 
   if(f != NULL) {
@@ -32,7 +32,7 @@ bool ms_file_construct(ms_logger * const logger, const char * const path) {
   return f != NULL;
 }
 
-void ms_file_destroy(ms_logger * logger) {
+void ms_logger_file_destroy(ms_logger * logger) {
   if(logger->ctx) {
     fclose(logger->ctx);
     logger->ctx = NULL;

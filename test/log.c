@@ -144,7 +144,7 @@ int main(int argc, char **argv) {
   logger.fatal = log_message;
   logger.level = MS_LOG_LEVEL_TRACE;
 
-  ms_set_global(&logger);
+  ms_logger_set_global(&logger);
 
   suite.user_ctx = &ctx;
   suite.each_setup = each_setup;

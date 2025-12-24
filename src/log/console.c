@@ -13,7 +13,7 @@ static void log_message(
   fwrite(message, sizeof(char), strlen(message), stderr);
 }
 
-void ms_console_construct(ms_logger * const logger) {
+void ms_logger_console_construct(ms_logger * const logger) {
   *logger = (ms_logger) {
     MS_LOG_LEVEL_INFO,
     log_message, // warning
@@ -26,4 +26,4 @@ void ms_console_construct(ms_logger * const logger) {
   };
 }
 
-void ms_console_destroy(ms_logger *logger) { ((void)logger); }
+void ms_logger_console_destroy(ms_logger *logger) { ((void)logger); }

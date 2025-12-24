@@ -1,7 +1,13 @@
-/**
- * @file
- *
+/*
  * Logger interface.
+ *
+ * Multi-level logging interface allows logging messages with or without printf-style formatting.
+ *
+ * A global logger must be set to use the general, macro-based interface, or individual functions
+ * can be called with local loggers.
+ *
+ * Tracing information does not have a general interface because it is intended to be selectively
+ * enabled for components during debugging. An example of how to enable it is found below.
  */
 #ifndef MS_LOGGER_H
 #define MS_LOGGER_H
@@ -11,72 +17,21 @@
 #define MS_LOG_MAX_MESSAGE_LENGTH (4096u)
 
 typedef enum {
-  /**
-   * Logging is disabled.
-   */
   MS_LOG_LEVEL_OFF,
-
-  /**
-   * Fatal error. The application will terminate.
-   */
-  MS_LOG_LEVEL_FATAL,
-
-  /**
-   * Non-fatal log message. The application will not terminate
-   * but may misbehave.
-   */
-  MS_LOG_LEVEL_ERROR,
-
-  /**
-   * Warning log message. The application has encountered a
-   * non-standard situation but has recovered and will not
-   * mis-behave.
-   */
-  MS_LOG_LEVEL_WARNING,
-
-  /**
-   * Informational log message. A standard event has happened.
-   */
-  MS_LOG_LEVEL_INFO,
-
-  /**
-   * Debug log message. Contains information to help during
-   * debugging.
-   */
-  MS_LOG_LEVEL_DEBUG,
-
-  /**
-   * Trace log message. Contains tracing information for select
-   * components.
-   */
-  MS_LOG_LEVEL_TRACE
+  MS_LOG_LEVEL_FATAL, // Application will terminate
+  MS_LOG_LEVEL_ERROR, // Application will not terminate but may misbehave
+  MS_LOG_LEVEL_WARNING, // Application had issue but has recovered
+  MS_LOG_LEVEL_INFO, // No issue
+  MS_LOG_LEVEL_DEBUG, // Information to assist debugging
+  MS_LOG_LEVEL_TRACE // Detailed debugging information - per component
 } ms_log_level;
 
-/**
- * Message logging function.
- *
- * @param level The log message level.
- * @param message The message to be logged.
- * @param ctx The logger context.
- */
-typedef void (*ms_message)(
-  const ms_log_level level,
-  const char * const message,
-  void * const ctx
-);
+typedef void (*ms_message)(const ms_log_level level, const char * const message, void * const ctx);
 
-/**
- * An object capable of logging events.
- */
 typedef struct {
-  /**
-   * The logging level.
-   *
-   * Log messages with level higher than this
-   * will be discarded.
-   */
-  ms_log_level level;
+  ms_log_level level; // Discard messages with level higher than this
 
+  // Handlers
   ms_message warning;
   ms_message debug;
   ms_message trace;
@@ -84,46 +39,12 @@ typedef struct {
   ms_message error;
   ms_message fatal;
 
-  /**
-   * Logger internal context.
-   */
-  void *ctx;
+  void *ctx; // Logger internal context
 } ms_logger;
 
-/**
- * Log a message.
- *
- * @param level The log message level.
- * @param file The name of the file producing the message.
- * @param message The message to log.
- */
-MSAPI void ms_log(
-  const ms_log_level level,
-  const char * const file,
-  const char * const message
-);
-
-/**
- * Log a formatted message (format is same as printf).
- *
- * @param level The log message level.
- * @param file The name of the file producing the message.
- * @param format The message format to log.
- * @param ... The arguments to be interpreted according to format.
- */
-MSAPI void ms_logf(
-  const ms_log_level level,
-  const char * const file,
-  const char * const format,
-  ...
-) MSFORMAT(3, 4);
-
-/**
- * Set the global logger.
- *
- * @param logger The new global logger. Can be null.
- */
-MSAPI void ms_set_global(ms_logger * const restrict logger);
+MSAPI void ms_log(const ms_log_level level, const char * const file, const char * const message);
+MSAPI void ms_logf(const ms_log_level level, const char * const file, const char * const format, ...) MSFORMAT(3, 4);
+MSAPI void ms_logger_set_global(ms_logger * const logger); // Set global logger - pass NULL to disable
 
 #define ms_fatal(message) do { ms_log(MS_LOG_LEVEL_FATAL, __FILE__, (message)); ms_break(); } while(false)
 #define ms_error(message) ms_log(MS_LOG_LEVEL_ERROR, __FILE__, (message))
@@ -137,41 +58,19 @@ MSAPI void ms_set_global(ms_logger * const restrict logger);
 #define ms_infof(format, ...) ms_logf(MS_LOG_LEVEL_INFO, __FILE__, (format), __VA_ARGS__)
 #define ms_debugf(format, ...) ms_logf(MS_LOG_LEVEL_DEBUG, __FILE__, (format), __VA_ARGS__)
 
+// Example of how to enable tracing
 #ifdef MSLIB
   #define ms_trace_test(message) ms_log(MS_LOG_LEVEL_TRACE, __FILE__, (message))
   #define ms_trace_testf(format, ...) ms_logf(MS_LOG_LEVEL_TRACE, __FILE__, (format), __VA_ARGS__)
 #endif
 
-/**
- * Construct a new file logger.
- *
- * @param logger The logger to initialize.
- * @param path The path to the log file.
- *
- * @return True if the logger was correctly initialised. False otherwise.
- */
-MSAPI bool ms_file_construct(ms_logger * const logger, const char * const path);
+// File logger
+MSAPI bool ms_logger_file_construct(ms_logger * const logger, const char * const path);
+MSAPI void ms_logger_file_destroy(ms_logger * const logger);
 
-/**
- * Destroy a file logger.
- *
- * @param logger The logger to destroy.
- */
-MSAPI void ms_file_destroy(ms_logger * const logger);
-
-/**
- * Construct a new console logger.
- *
- * @param logger The logger to initialize.
- */
-MSAPI void ms_console_construct(ms_logger * const logger);
-
-/**
- * Destroy a console logger.
- *
- * @param logger The logger to destroy.
- */
-MSAPI void ms_console_destroy(ms_logger * const logger);
+// Console logger
+MSAPI void ms_logger_console_construct(ms_logger * const logger);
+MSAPI void ms_logger_console_destroy(ms_logger * const logger);
 
 #endif // MS_LOGGER_H
 
