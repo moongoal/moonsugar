@@ -21,7 +21,8 @@ void each_setup(void *ctx) {
   ((void)ctx);
   ms_arena_description const description = {
     ARENA_BASE_SIZE,
-    MS_ALLOCATOR_DEF_HEAP(g_heap)
+    MS_ALLOCATOR_DEF_HEAP(g_heap),
+    0
   };
 
   ms_arena_construct(&arena, &description);

@@ -285,32 +285,34 @@ MSAPI void ms_heap_free(ms_heap *const heap, void *const ptr);
 MSUSERET MSAPI ms_header *ms_heap_get_header(void *const ptr);
 MSAPI MSUSERET bool ms_heap_owns(ms_heap *const heap, void *const ptr);
 
+/*
+ * Stack
+ */
+
 typedef struct {
-  /**
-   * Base stack memory address.
-   */
-  void *base;
-
-  /**
-   * Stack memory size.
-   */
-  size_t size;
-
-  /**
-   * Top stack pointer.
-   */
-  MS_ATOMIC(uint8_t*) top;
-
-  /**
-   * Top committed memory pointer.
-   */
-  MS_ATOMIC(uint8_t*) committed_top;
+  void *base; // Base stack memory address
+  size_t size; // Stack memory size
+  MS_ATOMIC(uint8_t*) top; // Top stack pointer
+  MS_ATOMIC(uint8_t*) committed_top; // Top of committed memory
 } ms_stack;
 
 MSAPI ms_result ms_stack_construct(ms_stack * const stack, uint64_t const max_size);
 MSAPI void ms_stack_destroy(ms_stack * const stack);
 MSAPI void* ms_stack_malloc(ms_stack * const stack, size_t size, size_t const alignment);
 MSAPI void ms_stack_clear(ms_stack * const stack); // Reset the stack to empty state
+
+/*
+ * Arena
+ *
+ * An arena is a pre-allocated, disposable area of memory
+ * intended to centralise and speed-up the sub-allocation
+ * of related resources.
+ *
+ * Arenas are of fixed size but can be chained. Chained
+ * arenas will automatically be deallocated when they
+ * become empty. Each chained arena size is aligned
+ * to a multiple of the primary arena.
+ */
 
 typedef struct ms_arena ms_arena;
 typedef struct ms_arena_node ms_arena_node;
@@ -323,125 +325,39 @@ struct ms_arena_node {
   uint8_t base[];
 };
 
-/**
- * Get the allocation header for a given pointer.
- *
- * @param ptr The pointer to get the allocation header for.
- *  The pointer must be as returned from one of the arena
- *  allocation functions. This argument is assumed to never
- *  be NULL.
- *
- * @return A pointer to the header of the allocation.
- */
-ms_header * MSAPI ms_arena_get_header(void *const ptr);
+typedef enum {
+  MS_ARENA_STICKY_BIT = 1 // Do not release empty nodes on deallocation
+} ms_arena_flag_bits;
 
-/**
- * An arena is a pre-allocated, disposable area of memory
- * intended to centralise and speed-up the sub-allocation
- * of related resources.
- *
- * Arenas are of fixed size but can be chained. Chained
- * arenas will automatically be deallocated when they
- * become empty. Each chained arena size is aligned
- * to a multiple of the primary arena.
- */
+typedef uint32_t ms_arena_flags;
+
 struct ms_arena {
   uint64_t base_size;
   ms_arena_node *first;
   ms_allocator allocator;
+  ms_arena_flags flags;
 };
 
 typedef struct {
   uint64_t base_size;
   ms_allocator allocator;
+  ms_arena_flags flags;
 } ms_arena_description;
 
-/**
- * Construct a new arena.
- *
- * @param arena The arena to construct.
- * @param description The arena description.
- *
- * @return The new arena.
- */
 MSAPI void ms_arena_construct(ms_arena *const arena, ms_arena_description const * const description);
-
-/**
- * Destroy an existing arena.
- *
- * @param arena The arena to destroy.
- */
 MSAPI void ms_arena_destroy(ms_arena *const arena);
-
-/**
- * Allocate memory from the arena.
- *
- * @param arena The arena.
- * @param count The number of bytes to allocate.
- * @param alignment Alignment constraint.
- *
- * @return A pointer to the allocated memory or NULL
- *  on failure.
- */
-MSAPI MSUSERET void * ms_arena_malloc(ms_arena *const arena, size_t const count, size_t const alignment);
-
-/**
- * Re-allocate memory from the arena.
- *
- * @param arena The arena.
- * @param new_count The new number of bytes to allocate.
- *
- * @return A pointer to the re-allocated memory or NULL
- *  on failure. The returned pointer may be the same as
- *  `ptr` if no memory relocation is necessary, `ptr` is returned;
- *  if memory relocation is necessary, the existing data is copied.
- */
-MSAPI MSUSERET void * ms_arena_realloc(ms_arena *const arena, void *const ptr, size_t const new_count);
-
-/**
- * De-allocate previously allocaetd memory.
- *
- * @param arena The arena.
- * @param ptr The pointer to the memory to free,
- *  as returned from `allocate()`.
- */
+MSAPI MSUSERET void * ms_arena_malloc(ms_arena *const arena, size_t const count, size_t const alignment); // Returns the pointer; NULL on failure or when count is 0
+MSAPI MSUSERET void * ms_arena_realloc(ms_arena *const arena, void *const ptr, size_t const new_count); // Returns the new pointer; NULL on failure of if new_count is 0
 MSAPI void ms_arena_free(ms_arena *const arena, void *const ptr);
+ms_header * MSAPI ms_arena_get_header(void *const ptr);
 
-/**
- * Release a previously reserved chunk of memory.
- * After this function returns, accessing the memory of `ptr`
- * is undefined behaviour.
- *
- * @param ptr The reserved pointer as returned by `ms_reserve()`.
- * @param count The size of the memory to release as passed to `ms_reserve()`.
+/*
+ * OS memory interface.
  */
-MSAPI void ms_release(void * const ptr, const size_t count);
 
-/**
- * Reserve some memory without committing it.
- *
- * @param count The number of bytes to reserve.
- *
- * @return A pointer to the reserved chunk or NULL on failure.
- */
-MSUSERET MSAPI MSMALLOC void* ms_reserve(const size_t count);
-
-/**
- * Commit a reserved chunk of memory.
- *
- * @param ptr The pointer to the chunk of reserved memory t o commit.
- * @param count The number of bytes to commit.
- *
- * @return True on success, false on failure.
- */
-MSAPI bool ms_commit(void * const ptr, const size_t count);
-
-/**
- * De-commit a previously committed chunk of memory.
- *
- * @param ptr The pointer to the chunk of committed memory to de-commit.
- * @param count The number of bytes to de-commit.
- */
-MSAPI void ms_decommit(void * const ptr, const size_t count);
+MSAPI void ms_release(void * const ptr, const size_t count); // Release reserved memory to the OS
+MSUSERET MSAPI MSMALLOC void* ms_reserve(const size_t count); // Reserve memory - Returns the pointer to the base of the reserved block or NULL on failure
+MSAPI bool ms_commit(void * const ptr, const size_t count); // Commit reserved memory - Returns false on failure
+MSAPI void ms_decommit(void * const ptr, const size_t count); // Decommit committed memory
 
 #endif // MS_MEMORY_H

@@ -52,7 +52,8 @@ void ms_arena_construct(ms_arena *const arena, ms_arena_description const * cons
   *arena = (ms_arena){
       description->base_size,
       NULL,
-      description->allocator
+      description->allocator,
+      description->flags
   };
 }
 
@@ -169,7 +170,7 @@ void ms_arena_free(ms_arena *const arena, void *const ptr) {
       MS_ASSERT(node->allocated_size >= chunk_size);
       node->allocated_size -= chunk_size;
 
-      if(node->allocated_size == 0) {
+      if(node->allocated_size == 0 && !ms_test(arena->flags, MS_ARENA_STICKY_BIT)) {
         ms_free(&arena->allocator, node);
 
         if(prev) {
