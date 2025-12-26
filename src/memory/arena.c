@@ -211,3 +211,24 @@ void *ms_arena_realloc(ms_arena *const arena, void *const ptr, size_t const new_
   return ms_arena_malloc(arena, new_count, MS_DEFAULT_ALIGNMENT);
 }
 
+void ms_arena_clear(ms_arena *const arena) {
+  for(
+    ms_arena_node * node = arena->first, *prev = NULL;
+    node != NULL;
+    prev = node, node = node->next
+  ) {
+    node->allocated_size = 0;
+
+    if(!ms_test(arena->flags, MS_ARENA_STICKY_BIT)) {
+      ms_free(&arena->allocator, node);
+
+      if(prev) {
+        prev->next = NULL;
+      } else {
+        arena->first = NULL;
+      }
+    } else {
+      ms_free_list_create_node(&node->free_list, (ms_free_list_node*)node->base, NULL, NULL, node->total_size);
+    }
+  }
+}

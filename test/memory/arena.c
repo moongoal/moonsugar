@@ -28,6 +28,17 @@ void each_setup(void *ctx) {
   ms_arena_construct(&arena, &description);
 }
 
+void each_setup_sticky(void *ctx) {
+  ((void)ctx);
+  ms_arena_description const description = {
+    ARENA_BASE_SIZE,
+    MS_ALLOCATOR_DEF_HEAP(g_heap),
+    MS_ARENA_STICKY_BIT
+  };
+
+  ms_arena_construct(&arena, &description);
+}
+
 void each_cleanup(void *ctx) {
   ((void)ctx);
   ms_arena_destroy(&arena);
@@ -147,6 +158,25 @@ MD_CASE(static_constraints) {
   md_assert((MS_HEAP_DEALLOC_THR) >= sizeof(ms_free_list_node));
 }
 
+MD_CASE(clear) {
+  (void)ms_arena_malloc(&arena, 1, MS_DEFAULT_ALIGNMENT);
+  ms_arena_clear(&arena);
+  md_assert(arena.first == NULL);
+}
+
+MD_CASE(sticky) { // Arena here is sticky
+  void * const ptr1 = ms_arena_malloc(&arena, 1, MS_DEFAULT_ALIGNMENT);
+  ms_arena_free(&arena, ptr1);
+  md_assert(arena.first != NULL);
+}
+
+MD_CASE(clear__sticky) { // Arena here is sticky
+  void * const ptr1 = ms_arena_malloc(&arena, 1, MS_DEFAULT_ALIGNMENT);
+  ms_arena_clear(&arena);
+  void * const ptr2 = ms_arena_malloc(&arena, 1, MS_DEFAULT_ALIGNMENT);
+  md_assert(ptr1 == ptr2);
+}
+
 int main(int argc, char** argv) {
   md_suite suite = md_suite_create();
 
@@ -168,6 +198,12 @@ int main(int argc, char** argv) {
   md_add(&suite, realloc_zero);
   md_add(&suite, inverse_free);
   md_add(&suite, static_constraints);
+  md_add(&suite, clear);
+  md_case * const sticky_case = md_add(&suite, sticky);
+  md_case * const clear__sticky_case = md_add(&suite, clear__sticky);
+
+  sticky_case->setup = each_setup_sticky;
+  clear__sticky_case->setup = each_setup_sticky;
 
   return md_run(argc, argv, &suite);
 }

@@ -349,7 +349,8 @@ MSAPI void ms_arena_destroy(ms_arena *const arena);
 MSAPI MSUSERET void * ms_arena_malloc(ms_arena *const arena, size_t const count, size_t const alignment); // Returns the pointer; NULL on failure or when count is 0
 MSAPI MSUSERET void * ms_arena_realloc(ms_arena *const arena, void *const ptr, size_t const new_count); // Returns the new pointer; NULL on failure of if new_count is 0
 MSAPI void ms_arena_free(ms_arena *const arena, void *const ptr);
-ms_header * MSAPI ms_arena_get_header(void *const ptr);
+ms_header * MSAPI ms_arena_get_header(void *const ptr); // Get allocation header
+MSAPI void ms_arena_clear(ms_arena *const arena); // Reset arena to empty, invalidating all previous allocations
 
 /*
  * OS memory interface.
