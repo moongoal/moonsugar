@@ -55,6 +55,7 @@ add_library(
   src/containers/pool.c
   src/containers/indexed-pool.c
   src/containers/paged-array.c
+  src/containers/auto-array.c
   src/containers/sparse-paged-array.c
 
   $<$<BOOL:${ENABLE_HASH}>:src/containers/map.c>
@@ -206,6 +207,7 @@ else()
 
   ms_add_test(test-containers-bit-array test/containers/bit-array.c)
   ms_add_test(test-containers-paged-array test/containers/paged-array.c)
+  ms_add_test(test-containers-auto-array test/containers/auto-array.c)
   ms_add_test(test-containers-sparse-paged-array test/containers/sparse-paged-array.c)
   ms_add_test(test-containers-ring test/containers/ring.c)
   ms_add_test(test-containers-pool test/containers/pool.c)
