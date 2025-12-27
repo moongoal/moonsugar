@@ -119,6 +119,7 @@ target_sources(
     include/moonsugar/containers/bit-array.h
     include/moonsugar/containers/ring.h
     include/moonsugar/containers/pool.h
+    include/moonsugar/containers/auto-array.h
     include/moonsugar/containers/indexed-pool.h
     include/moonsugar/containers/paged-array.h
     include/moonsugar/containers/sparse-paged-array.h
