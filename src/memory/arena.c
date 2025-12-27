@@ -39,7 +39,7 @@ static void on_before_alloc_from_node(
 }
 
 void ms_arena_construct(ms_arena *const arena, ms_arena_description const * const description) {
-  ms_sys_info const *restrict const si = ms_get_sys_info();
+  ms_sys_info const *const si = ms_get_sys_info();
 
   if(si->alloc_granularity < MS_DEFAULT_ALIGNMENT) {
     ms_errorf(
@@ -95,7 +95,7 @@ static void* allocate_from_node(ms_arena_node * const node, size_t const count, 
   uint8_t *const aligned_min_ptr = unaligned_ptr + sizeof(ms_header); // Assumes 0 padding
   uint8_t *const aligned_ptr = ms_align_ptr(aligned_min_ptr, alignment);
   uint32_t const padding = aligned_ptr - aligned_min_ptr;
-  ms_header *restrict const hdr = (ms_header *)aligned_ptr - 1;
+  ms_header *const hdr = (ms_header *)aligned_ptr - 1;
 
   hdr->size = chunk_size;
   hdr->alignment = alignment;
@@ -161,7 +161,7 @@ void ms_arena_free(ms_arena *const arena, void *const ptr) {
 
   for(ms_arena_node * node = arena->first; node != NULL; prev = node, node = node->next) {
     if(DOES_PTR_BELONG(node, ptr)) {
-      ms_header *restrict const head = ms_arena_get_header(ptr);
+      ms_header *const head = ms_arena_get_header(ptr);
       ms_free_list_node * const chunk = (ms_free_list_node *)((uint8_t *)head - head->padding);
       size_t const chunk_size = chunk->size;
 

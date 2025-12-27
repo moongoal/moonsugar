@@ -339,8 +339,8 @@ struct ms_arena {
 };
 
 typedef struct {
-  uint64_t base_size;
-  ms_allocator allocator;
+  uint64_t base_size; // Initial arena size
+  ms_allocator allocator; // Allocator the arena draws memory from
   ms_arena_flags flags;
 } ms_arena_description;
 
