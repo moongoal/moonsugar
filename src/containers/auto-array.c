@@ -7,15 +7,17 @@ ms_result ms_autoarray_construct(ms_autoarray * const arr, ms_autoarray_descript
   MS_ASSERT(arr);
   MS_ASSERT(description);
 
+  uint32_t const capacity = ms_align_sz(description->initial_capacity, 8);
+
   *arr = (ms_autoarray) {
     description->allocator,
     ms_malloc(
       &description->allocator,
-      description->item_size * description->initial_capacity,
+      description->item_size * capacity,
       MS_DEFAULT_ALIGNMENT
     ),
     description->item_size,
-    description->initial_capacity,
+    capacity,
     0
   };
 
@@ -37,8 +39,10 @@ ms_result ms_autoarray_resize(ms_autoarray * const array, uint32_t const new_cou
   return MS_RESULT_SUCCESS;
 }
 
-ms_result ms_autoarray_reserve(ms_autoarray * const array, uint32_t const new_capacity) {
+ms_result ms_autoarray_reserve(ms_autoarray * const array, uint32_t new_capacity) {
   MS_ASSERT(array);
+
+  new_capacity = ms_align_sz(new_capacity, 8);
 
   if(new_capacity > array->capacity) {
     array->base = ms_realloc(
@@ -60,7 +64,11 @@ void* ms_autoarray_get(ms_autoarray * const arr, uint32_t const index) {
 }
 
 void* ms_autoarray_append(ms_autoarray * const arr) {
-  ms_autoarray_resize(arr, arr->count + 1);
+  if(arr->count == arr->capacity) {
+    ms_autoarray_reserve(arr, arr->capacity * 2);
+  }
+
+  arr->count += 1;
 
   return ms_autoarray_get(arr, arr->count - 1);
 }
