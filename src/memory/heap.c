@@ -3,7 +3,6 @@
 #include <moonsugar/log.h>
 #include <moonsugar/util.h>
 #include <moonsugar/memory.h>
-#include <moonsugar/sys.h>
 
 // End pointer of mallocd memory
 #define HEAP_COMMITTED_END(heap) ((void *)((uint8_t *)(heap->base) + (heap)->committed_size))
@@ -88,16 +87,6 @@ ms_result ms_heap_construct(ms_heap *const heap, uint64_t const size, uint64_t c
   MS_ASSERT(ms_is_multiple(size, page_size));
   MS_ASSERT(ms_is_power2(page_size));
 
-  ms_sys_info const *restrict const si = ms_get_sys_info();
-
-  if(si->alloc_granularity < MS_DEFAULT_ALIGNMENT) {
-    ms_errorf(
-      "Reported OS allocation granularity %llu cannot satisfy minimum engine allocation requirement %llu.",
-      (uint64_t)si->alloc_granularity,
-      (uint64_t)MS_DEFAULT_ALIGNMENT
-    );
-  }
-
   void *const base_ptr = ms_reserve(size);
 
   if(base_ptr == NULL) {
@@ -121,7 +110,6 @@ ms_result ms_heap_construct(ms_heap *const heap, uint64_t const size, uint64_t c
 
   // Create first chunk
   ms_free_list_node *const chunk = base_ptr;
-  commit(heap, chunk, page_size);
   ms_free_list_create_node(&heap->free_list, chunk, NULL, NULL, size);
 
   return MS_RESULT_SUCCESS;
@@ -146,6 +134,7 @@ void * ms_heap_malloc(ms_heap *const heap, size_t const count, size_t alignment)
   if(count > 0) {
     // Add header
     size_t chunk_size;
+    // This accounts for max padding + header
     uint8_t *const unaligned_ptr = ms_free_list_malloc(&heap->free_list, count, alignment, &chunk_size);
 
     if(unaligned_ptr == NULL) {
@@ -155,7 +144,7 @@ void * ms_heap_malloc(ms_heap *const heap, size_t const count, size_t alignment)
     uint8_t *const aligned_min_ptr = unaligned_ptr + sizeof(ms_header); // Assumes 0 padding
     uint8_t *const aligned_ptr = ms_align_ptr(aligned_min_ptr, alignment);
     uint32_t const padding = aligned_ptr - aligned_min_ptr;
-    ms_header *restrict const hdr = (ms_header *)aligned_ptr - 1;
+    ms_header *const hdr = (ms_header *)aligned_ptr - 1;
 
     hdr->size = chunk_size;
     hdr->alignment = alignment;
@@ -169,7 +158,7 @@ void * ms_heap_malloc(ms_heap *const heap, size_t const count, size_t alignment)
 
 void ms_heap_free(ms_heap *const heap, void *const ptr) {
   if(DOES_PTR_BELONG(heap, ptr)) {
-    ms_header *restrict const head = ms_heap_get_header(ptr);
+    ms_header * const head = ms_heap_get_header(ptr);
     ms_free_list_node *chunk = (ms_free_list_node *)((uint8_t *)head - head->padding);
 
     ms_free_list_free(&heap->free_list, chunk, head->size);
@@ -199,14 +188,12 @@ static void * realloc_from_free_list(ms_heap *const heap, void *restrict const p
   size_t const available_size = hdr->size - hdr->padding - sizeof(ms_header);
 
   if(new_count > available_size) { // Not enough room for expansion
-    void *restrict const new_ptr = ms_heap_malloc(heap, new_count, hdr->alignment);
+    void *const new_ptr = ms_heap_malloc(heap, new_count, hdr->alignment);
 
     // Copy the old data and free the existing allocation
     if(new_ptr) {
-      ms_free_list_node *chunk = (ms_free_list_node *)((uint8_t *)hdr - hdr->padding);
-
       memcpy(new_ptr, ptr, available_size);
-      ms_free_list_free(&heap->free_list, chunk, available_size);
+      ms_heap_free(heap, ptr);
 
       return new_ptr;
     } else {
@@ -225,7 +212,7 @@ void *ms_heap_realloc(ms_heap *const heap, void *const ptr, size_t const new_cou
       if(DOES_PTR_BELONG(heap, ptr)) {
         return realloc_from_free_list(heap, ptr, new_count);
       } else {
-        ms_error("Attempting to realloc a pointer not mallocd via this heap.");
+        ms_fatalf("Attempting to reallocate a pointer (%p) not allocated via this heap.", ptr);
       }
     } else {
       ms_heap_free(heap, ptr);

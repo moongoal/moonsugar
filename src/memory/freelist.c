@@ -177,10 +177,10 @@ static ms_free_list_node * try_coalesce_neighbors(ms_free_list *const list, ms_f
 
 static ms_free_list_node *find_prev_node(ms_free_list *const list, ms_free_list_node *const subject) {
   for(ms_free_list_node *c = list->first; c != NULL; c = c->next) {
-    if(c < subject) { // c is a previous chunk
+    if(NODE_END(c) <= (void*)subject) { // c is a previous chunk
       if(
         (c->next == NULL) // c is last chunk of list
-        || (c->next > subject) // subject is in between c and next
+        || ((void*)c->next >= NODE_END(subject)) // subject is in between c and next
       ) {
         return c;
       }
@@ -197,8 +197,7 @@ void ms_free_list_free(ms_free_list *const list, void * const ptr, size_t const 
 
   if(list->first) {
     ms_free_list_node *const prev = find_prev_node(list, node);
-
-    MS_ASSERT(!prev || NODE_END(prev) <= (void *)node);
+    MS_ASSERT(!prev || (NODE_END(prev) <= (void *)node));
 
     ms_free_list_create_node(list, node, prev, prev ? prev->next : list->first, size);
 

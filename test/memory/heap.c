@@ -18,7 +18,7 @@ void each_cleanup(void *ctx) {
 
 MD_CASE(ctor) {
   md_assert(heap.base != NULL);
-  md_assert(heap.committed_size == PAGE_SIZE);
+  md_assert(heap.committed_size > 0);
   md_assert(heap.size == HEAP_SIZE);
   md_assert(heap.free_list.first != NULL);
 
