@@ -19,7 +19,7 @@ ms_result ms_rwlock_construct(ms_rwlock *const lock) {
 
 void ms_rwlock_destroy(ms_rwlock *const lock) {
   if(lock->event != NULL) {
-    CloseHandle(&lock->event);
+    CloseHandle(lock->event);
     lock->event = NULL;
   }
 }

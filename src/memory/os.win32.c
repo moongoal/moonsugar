@@ -25,12 +25,6 @@ void ms_release(void * ptr, size_t count) {
 }
 
 bool ms_commit(void * ptr, size_t count) {
-  uint64_t const page_size = ms_get_sys_info()->page_size;
-  uint8_t* const ptr_end = ms_align_ptr((uint8_t*)ptr + count, page_size);
-
-  ptr = ms_align_back_ptr(ptr, page_size);
-  count = ptr_end - (uint8_t*)ptr;
-
   return VirtualAlloc(
     ptr,
     count,
