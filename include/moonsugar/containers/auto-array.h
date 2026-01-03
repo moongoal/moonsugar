@@ -27,5 +27,6 @@ ms_result MSAPI ms_autoarray_resize(ms_autoarray * const array, uint32_t const n
 ms_result MSAPI ms_autoarray_reserve(ms_autoarray * const array, uint32_t new_capacity); // Change capacity - new capacity will be rounded to the next multiple of 8
 void* MSAPI MSUSERET ms_autoarray_get(ms_autoarray * const arr, uint32_t const index); // Get pointer to item
 void* MSAPI MSUSERET ms_autoarray_append(ms_autoarray * const arr); // Increase count by 1 and get pointer to last item
+void* MSAPI MSUSERET ms_autoarray_append_n(ms_autoarray * const arr, uint32_t const n); // Increase count by n and get pointer to the appended items
 
 #endif // MS_CONTAINERS_AUTO_ARRAY_H

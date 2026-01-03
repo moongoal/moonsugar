@@ -71,6 +71,14 @@ MD_CASE(get__append) {
   md_assert(*(int*)ms_autoarray_get(&array, 0) == 123);
 }
 
+MD_CASE(get__append_n) {
+  *(int*)ms_autoarray_append_n(&array, 5) = 123;
+  *(int*)ms_autoarray_append_n(&array, 6) = 124;
+
+  md_assert(*(int*)ms_autoarray_get(&array, 5) == 124);
+  md_assert(*(int*)ms_autoarray_get(&array, 0) == 123);
+}
+
 int main(int argc, char **argv) {
   md_suite suite = md_suite_create();
 
@@ -84,6 +92,7 @@ int main(int argc, char **argv) {
   md_add(&suite, resize__reserve);
   md_add(&suite, reserve);
   md_add(&suite, get__append);
+  md_add(&suite, get__append_n);
 
   return md_run(argc, argv, &suite);
 }

@@ -72,3 +72,13 @@ void* ms_autoarray_append(ms_autoarray * const arr) {
 
   return ms_autoarray_get(arr, arr->count - 1);
 }
+
+void* ms_autoarray_append_n(ms_autoarray * const arr, uint32_t const n) {
+  if(arr->capacity - arr->count < n) {
+    ms_autoarray_reserve(arr, ms_max(arr->capacity * 2, arr->capacity + n));
+  }
+
+  arr->count += n;
+
+  return ms_autoarray_get(arr, arr->count - n);
+}
