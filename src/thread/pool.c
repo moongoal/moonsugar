@@ -77,7 +77,7 @@ ms_result ms_thread_pool_construct(ms_thread_pool *const pool, ms_thread_pool_de
 void ms_thread_pool_destroy(ms_thread_pool *const pool) {
   MS_ASSERT(pool);
 
-  pool->must_join = true;
+  ms_atomic_store(&pool->must_join, true, MS_MEMORY_ORDER_RELEASE);
 
   for(size_t i = 0; i < pool->thread_count; ++i) {
     ms_thread_join(&pool->threads[i]);
