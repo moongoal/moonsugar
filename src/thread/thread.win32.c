@@ -80,3 +80,6 @@ bool ms_thread_join(ms_thread *const t) {
 void ms_thread_yield(void) { SwitchToThread(); }
 void ms_thread_sleep(ms_time const count) { Sleep(ms_max(1, ms_time_to_ms(count))); }
 
+uint64_t ms_get_current_thread_id(void) {
+  return GetCurrentThreadId();
+}

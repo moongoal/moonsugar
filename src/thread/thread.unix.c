@@ -86,3 +86,6 @@ bool ms_thread_join(ms_thread *const t) {
 void ms_thread_yield(void) { sched_yield(); }
 void ms_thread_sleep(ms_time const count) { usleep(ms_max(1, ms_time_to_us(count))); }
 
+uint64_t ms_get_current_thread_id(void) {
+  return (uint64_t)(uintptr_t)pthread_self();
+}

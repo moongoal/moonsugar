@@ -30,6 +30,7 @@ MSAPI bool ms_thread_join(ms_thread * const t); // Returns true on success
 MSAPI void ms_thread_yield(void);
 MSAPI void ms_thread_sleep(const ms_time count);
 MSAPI const char * ms_get_current_thread_name(void);
+MSAPI uint64_t ms_get_current_thread_id(void);
 MSAPI void ms_set_current_thread_name(char const * const name);
 
 #ifdef _WIN32
